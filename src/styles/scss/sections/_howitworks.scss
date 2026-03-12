@@ -1,0 +1,49 @@
+/* Titre principal */
+.section-title-how {
+  font-family: 'Playfair Display', serif; /* Ou une police avec empattement */
+  font-size: 2.8rem;
+  font-weight: 700;
+}
+
+/* Le cercle noir de l'icône */
+.step-icon-circle {
+  background-color: #000;
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+}
+
+/* Texte de l'étape */
+.step-title-text {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+
+.step-desc-text {
+  max-width: 400px;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+/* Bouton ovale "Voir Plus" */
+.btn-voir-plus-step {
+  display: inline-block;
+  padding: 6px 35px;
+  border: 1px solid #000;
+  border-radius: 50px; /* Forme pilule */
+  color: #000;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.btn-voir-plus-step:hover {
+  background-color: #000;
+  color: #fff;
+}

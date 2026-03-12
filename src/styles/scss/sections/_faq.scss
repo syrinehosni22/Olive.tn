@@ -1,0 +1,48 @@
+/* Style pour la section FAQ */
+.faq-main-title {
+  font-family: 'Playfair Display', serif; /* Ou une police serif similaire à l'image */
+  font-size: 2.5rem;
+  color: #ffffff;
+  margin-bottom: 0;
+}
+
+.faq-divider {
+  border: 0;
+  border-top: 2px solid #ffffff;
+  opacity: 1;
+  width: 100%;
+}
+
+.faq-item-container {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.faq-number-circle {
+  min-width: 60px;
+  height: 60px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #000000;
+}
+
+.faq-item-title {
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  color: #000000;
+}
+
+.faq-item-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 450px;
+}
+
+/* Suppression de la bordure sur le dernier élément si nécessaire */
+.faq-item-container:last-child {
+  border-bottom: none;
+}

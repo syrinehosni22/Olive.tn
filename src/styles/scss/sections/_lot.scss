@@ -1,0 +1,128 @@
+/* Container & Background */
+.olive-lots-section {
+    background-color: #000; /* Black background like screenshot */
+    padding: 80px 0;
+    color: #fff;
+}
+
+/* Section Header */
+.section-header {
+    margin-bottom: 50px;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.title-underline {
+    width: 400px;
+    height: 4px;
+    background-color: #fff;
+}
+
+/* Card Styling */
+.oil-lot-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease;
+    min-height: 160px;
+    color: #333;
+}
+
+.oil-card-link {
+    text-decoration: none !important;
+    width: 100%;
+}
+
+.oil-lot-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Left Icon */
+.oil-drop-circle {
+    width: 45px;
+    height: 45px;
+    border: 2px solid #84cc16; /* Green border */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.oil-drop-circle i {
+    color: #84cc16;
+    font-size: 1.2rem;
+}
+
+/* Color Overrides for Premium */
+.oil-drop-circle.premium {
+    border-color: #a21caf;
+}
+.oil-drop-circle.premium i {
+    color: #a21caf;
+}
+.oil-type.premium {
+    color: #a21caf !important;
+}
+
+/* Content Text */
+.oil-card-body {
+    flex-grow: 1;
+}
+
+.oil-type {
+    color: #84cc16;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-transform: capitalize;
+}
+
+.oil-quantity {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+}
+
+.oil-info-row {
+    font-size: 0.85rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2px;
+}
+
+.oil-info-row .value {
+    font-weight: 600;
+}
+
+/* Right Arrow */
+.oil-card-right {
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+/* "Voir Plus" Button */
+.btn-voir-plus {
+    background: transparent;
+    color: #fff;
+    border: 2px solid #fff;
+    padding: 12px 40px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-voir-plus:hover {
+    background: #fff;
+    color: #000;
+}
