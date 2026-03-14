@@ -5,6 +5,7 @@ import { Autoplay, EffectFade, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import gsap from "gsap";
 import SplitType from "split-type";
+import { Link } from "react-router-dom";
 
 const BannerSection = () => {
   const dispatch = useAppDispatch();
@@ -59,21 +60,19 @@ const BannerSection = () => {
                   </h1>
                   <h3 className="rv-text-anime">
                     The Best Of Tunisian Olive Oil
-                  </h3> 
-                  <h4 className="rv-text-anime">
-                    Tn
-                  </h4>
+                  </h3>
+                  <h4 className="rv-text-anime">Tn</h4>
                   <div className="rv-20-banner_button_area">
-                    <a href="#" className="rv-20-banner_content_btn">
-                      Explore More
-                    </a>
-                    <a
+                    <Link to="/register" className="rv-20-banner_content_btn">
+                      S'inscrire
+                    </Link>
+                    {/* <a
                       className="rv-20-banner_content_play_btn"
                       role="button"
                       onClick={openVideoModal}
                     >
                       <i className="fas fa-play"></i> Play Now
-                    </a>
+                    </a> */}
                   </div>
                 </div>
               </div>
@@ -93,14 +92,12 @@ const BannerSection = () => {
                   </h1>
                   <h3 className="rv-text-anime">
                     The Best Of Tunisian Olive Oil
-                  </h3> 
-                  <h4 className="rv-text-anime">
-                    Tn
-                  </h4>
+                  </h3>
+                  <h4 className="rv-text-anime">Tn</h4>
                   <div className="rv-20-banner_button_area">
-                    <a href="#" className="rv-20-banner_content_btn">
-                      Explore More
-                    </a>
+                    <Link to="/register" className="rv-20-banner_content_btn">
+                      S'inscrire
+                    </Link>
                     <a
                       className="rv-20-banner_content_play_btn"
                       role="button"
@@ -115,17 +112,6 @@ const BannerSection = () => {
           </div>
         </SwiperSlide>
       </Swiper>
-
-      <div className="rv-20-banner_slide_button_area">
-        <div className="rv-20-banner_slide_button_prev ">
-          {" "}
-          <i className="fas fa-arrow-left"></i>{" "}
-        </div>
-        <div className="rv-20-banner_slide_button_next ">
-          {" "}
-          <i className="fas fa-arrow-right"></i>{" "}
-        </div>
-      </div>
     </section>
   );
 };

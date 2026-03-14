@@ -18,7 +18,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
   bgColor,
 }) => {
   return (
-    <div className="rounded-0 mb-4" style={{ backgroundColor: bgColor }}>
+    <div className="rounded-0 extension-5" style={{ backgroundColor: bgColor }}>
       {/* Titre de section avec bordure épaisse en bas (Design exact) */}
       <div className="mb-5 container">
         <h2

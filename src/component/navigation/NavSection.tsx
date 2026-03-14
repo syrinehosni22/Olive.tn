@@ -30,21 +30,7 @@ const NavSection = ({ style }: Props) => {
     <div className={`rv-1-header__nav ${style}`}>
       <ul className="justify-content-center">
         <li className={dropdown.home ? "rv-dropdown-active" : ""}>
-          <a role="button" onClick={() => handleToggleDropdown("home")}>
-             Acceuil
-          </a>
-
-          <ul className="sub-menu">
-            <li>
-              <Link to="/">Gardening</Link>
-            </li>
-            <li>
-              <Link to="/home-2">Herbal Tea</Link>
-            </li>
-            <li>
-              <Link to="/home-3">ECO</Link>
-            </li>
-          </ul>
+          <Link to="/">Acceuil</Link>
         </li>
 
         <li>

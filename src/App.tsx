@@ -28,7 +28,6 @@ function App() {
   return (
     <Router>
       <Routes>
-
         <Route element={<Layout />}>
           <Route path="/" element={<Home1 />} />
           <Route path="/register" element={<RegistrationPage />} />
@@ -36,9 +35,15 @@ function App() {
           <Route path="/home-3" element={<Home3 />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
-          <Route path="/services/:serviceSlug" element={<ServiceDetailsPage />} />
+          <Route
+            path="/services/:serviceSlug"
+            element={<ServiceDetailsPage />}
+          />
           <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:projectSlug" element={<ProjectDetailsPage />} />
+          <Route
+            path="/projects/:projectSlug"
+            element={<ProjectDetailsPage />}
+          />
           <Route path="/team" element={<TeamMembers />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
@@ -54,7 +59,6 @@ function App() {
         </Route>
 
         <Route path="*" element={<ErrorPage />} />
-
       </Routes>
     </Router>
   );

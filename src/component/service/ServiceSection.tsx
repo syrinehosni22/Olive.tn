@@ -31,13 +31,6 @@ const ServiceSection = () => {
               </div>
             </div>
       </div>
-
-      <span className="service-sh-1">
-        <img src="assets/img/services/home-6-service-4.png" alt="image" />
-      </span>
-      <span className="service-sh-2">
-        <img src="assets/img/services/home-6-service-5.png" alt="image" />
-      </span>
     </section>
   );
 };

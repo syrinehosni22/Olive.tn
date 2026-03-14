@@ -39,7 +39,7 @@ const PricingSection: React.FC<PricingProps> = ({ role, onBack }) => {
         </div>
 
         <h2
-          className="text-center fw-bold mb-5"
+          className="text-center fw-bold space-5"
           style={{ fontFamily: "serif", fontSize: "2.8rem" }}
         >
           Nos formules Business
@@ -121,7 +121,7 @@ const PricingSection: React.FC<PricingProps> = ({ role, onBack }) => {
           />
 
           <div className="container mt-5">
-             <h3 className="text-center fw-bold mb-4" style={{ fontFamily: "serif" }}>Comparatif des fonctionnalités</h3>
+             <h3 className="text-center fw-bold space-5" style={{ fontFamily: "serif" }}>Comparatif des fonctionnalités</h3>
              <ComparisonTable data={currentTable} />
           </div>
         </div>
