@@ -98,7 +98,7 @@
         font-weight: 600;
 
         @include md {
-            font-size: 16px;
+            font-size: 19px;
         }
     }
 
@@ -533,7 +533,7 @@
             }
 
             @include xs {
-                font-size: 16px;
+                font-size: 19px;
             }
 
             a:hover {
@@ -636,7 +636,7 @@
             a {
                 color: var(--black);
                 font-family: var(--tnr);
-                font-size: 16px;
+                font-size: 19px;
                 font-weight: 700;
                 text-underline-offset: 3px;
 
@@ -1228,7 +1228,7 @@
                     transition: all 0.4s ease;
 
                     a {
-                        font-size: 16px;
+                        font-size: 19px;
                         color: rgba(255, 255, 255, 0.3);
                         transition: all 0.3s ease;
                         font-family: $mulish;
@@ -1319,7 +1319,7 @@
         }
 
         .rv-19-teem_button_area {
-            font-size: 16px;
+            font-size: 19px;
             font-weight: 700;
             color: #142137;
             width: 250px;
@@ -1517,7 +1517,7 @@
             .rv-20-team_sub_title {
                 color: #081C15;
                 font-weight: 500;
-                font-size: 16px;
+                font-size: 19px;
                 width: 160px;
                 height: 36px;
                 line-height: 36px;
@@ -1577,7 +1577,7 @@
             .rv-20-team_btn {
                 background: #FFFFFF;
                 color: #081C15;
-                font-size: 16px;
+                font-size: 19px;
                 font-weight: 700;
                 width: 200px;
                 height: 54px;
@@ -2042,7 +2042,7 @@
                         font-family: $mulish;
 
                         @media #{$md,$sm,$mobile,$sm-mobile} {
-                            font-size: 16px;
+                            font-size: 19px;
                         }
                     }
 
@@ -2154,7 +2154,7 @@
             margin-left: auto;
 
             .rv-23-teem_btn {
-                font-size: 16px;
+                font-size: 19px;
                 font-weight: 700;
                 color: #020208;
                 background: transparent;
@@ -2332,7 +2332,7 @@
 
     .rv-25-team_sub_title {
         color: #FFFFFF;
-        font-size: 16px;
+        font-size: 19px;
         font-weight: 600;
         margin-bottom: 20px;
         font-family: $mulish;

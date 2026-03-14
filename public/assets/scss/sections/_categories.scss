@@ -50,7 +50,7 @@
         transition: 0.4s ease;
 
         @include xxs {
-            font-size: 16px;
+            font-size: 19px;
         }
     }
 }
@@ -83,7 +83,7 @@
 
     &__title {
         color: #050505;
-        font-size: 16px;
+        font-size: 19px;
         font-weight: 700;
         margin-bottom: 1px;
 
@@ -319,7 +319,7 @@
 
             h3 {
                 font-family: $mulish;
-                font-size: 16px;
+                font-size: 19px;
                 font-weight: 700;
                 color: #0E1428;
                 text-align: center;

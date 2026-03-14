@@ -55,7 +55,7 @@
         }
 
         @include sm {
-            font-size: 16px;
+            font-size: 19px;
             margin-bottom: 0;
         }
     }
@@ -265,7 +265,7 @@
         }
 
         @include sm {
-            font-size: 16px;
+            font-size: 19px;
         }
 
         >span {
@@ -814,7 +814,7 @@
 
 .rv-12-testimony {
     .rv-3-testimony__rating {
-        font-size: 16px;
+        font-size: 19px;
         margin-bottom: 18px;
     }
 
@@ -1249,7 +1249,7 @@
                     }
 
                     @media #{$sm-mobile} {
-                        font-size: 16px;
+                        font-size: 19px;
                         line-height: 24px;
                         padding: 15px 0;
                     }
@@ -1870,7 +1870,7 @@
                 font-family: $mulish;
 
                 @media #{$sm,$mobile,$sm-mobile} {
-                    font-size: 16px;
+                    font-size: 19px;
                     margin-bottom: 35px;
                     padding: 0 65px;
                 }
@@ -2044,7 +2044,7 @@
 
                 .rv-20-single_testimonial_text_area {
                     color: rgba(255, 255, 255, 0.7);
-                    font-size: 16px;
+                    font-size: 19px;
                     font-weight: 500;
                     margin-bottom: 40px;
                     font-family: $mulish;
@@ -2073,7 +2073,7 @@
                             font-family: $mulish;
 
                             @media #{$sm-mobile} {
-                                font-size: 16px;
+                                font-size: 19px;
                             }
 
                             a {
@@ -2217,7 +2217,7 @@
                         font-family: $mulish;
 
                         @media #{$mobile} {
-                            font-size: 16px;
+                            font-size: 19px;
                         }
 
                         @media #{$sm-mobile} {
@@ -2717,7 +2717,7 @@
 
             .rv-24-testimonial_sub_title {
                 color: rgba(255, 255, 255, 0.7);
-                font-size: 16px;
+                font-size: 19px;
                 font-weight: 600;
                 margin-bottom: 20px;
                 font-family: $mulish;
@@ -2756,7 +2756,7 @@
                 background: transparent;
                 color: #FFFFFF;
                 position: relative;
-                font-size: 16px;
+                font-size: 19px;
                 font-weight: 700;
                 width: 190px;
                 height: 52px;
@@ -2934,7 +2934,7 @@
 
                     .rv-24-single_testimonial_text_area {
                         color: rgba(255, 255, 255, 0.7);
-                        font-size: 16px;
+                        font-size: 19px;
                         font-weight: 500;
                         margin-bottom: 20px;
                         line-height: 36px;
@@ -3015,7 +3015,7 @@
 
     &_sub_title {
         color: #FFFFFF;
-        font-size: 16px;
+        font-size: 19px;
         font-weight: 600;
         margin-bottom: 20px;
 
@@ -3079,7 +3079,7 @@
 
                 .rv-25-single_testimonial_text_area {
                     color: #B2B2B2;
-                    font-size: 16px;
+                    font-size: 19px;
                     font-weight: 500;
                     margin-bottom: 30px;
                     font-family: $mulish;

@@ -6,7 +6,7 @@
     text-transform: capitalize;
     color: var(--white-f);
     font-weight: 700;
-    font-size: 16px;
+    font-size: 19px;
     display: inline-flex;
     font-family: var(--tnr);
     transition: none;
@@ -425,7 +425,7 @@
 // INDEX-3 
 .rv-3-sub-title {
     font-family: var(--tnr);
-    font-size: 16px;
+    font-size: 19px;
     font-weight: 500;
     position: relative;
     width: max-content;
@@ -867,7 +867,7 @@
 .rv-7-section__sub-title {
     color: #050505;
     font-family: var(--tnr);
-    font-size: 16px;
+    font-size: 19px;
     font-weight: 400;
 }
 
@@ -1055,7 +1055,7 @@
 
     &__sub-title {
         color: #050505;
-        font-size: 16px;
+        font-size: 19px;
         font-weight: 500;
         border-radius: 30px;
         border: 1px solid rgba(5, 5, 5, 0.14);
@@ -1224,7 +1224,7 @@
         }
 
         @include xs {
-            font-size: 16px;
+            font-size: 19px;
         }
 
         @include xs {
@@ -1499,7 +1499,7 @@
     &__sub-title {
         color: var(--black);
         font-family: var(--tnr);
-        font-size: 16px;
+        font-size: 19px;
         font-weight: 700;
         letter-spacing: 0.96px;
         margin-bottom: 10px;

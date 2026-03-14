@@ -54,7 +54,7 @@ body {
     font-weight: 400;
     font-style: normal;
     color: #878c8f;
-    font-size: 16px;
+    font-size: 19px;
 }
 
 .img,
@@ -187,10 +187,10 @@ h5 {
 }
 
 h6 {
-    font-size: 16px;
+    font-size: 19px;
 
     @media #{$xs} {
-        font-size: 16px;
+        font-size: 19px;
     }
 }
 
@@ -200,7 +200,7 @@ ul {
 }
 
 p {
-    font-size: 16px;
+    font-size: 19px;
     font-weight: normal;
     line-height: 1.75;
     color: #878c8f;
@@ -247,7 +247,7 @@ label {
 input {
     @include placeholder {
         color: #878c8f;
-        font-size: 16px;
+        font-size: 19px;
         opacity: 1;
         transition: .5s;
     }
@@ -256,7 +256,7 @@ input {
 textarea {
     @include placeholder {
         color: #878c8f;
-        font-size: 16px;
+        font-size: 19px;
         opacity: 1;
         transition: .5s;
     }

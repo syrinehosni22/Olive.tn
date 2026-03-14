@@ -73,9 +73,9 @@ export const RoleSelector = ({ onSelect }: { onSelect: (role: RoleType) => void 
       >
         <div className="position-relative">
           <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg" 
+            src="\assets\img\map.png" 
             alt="World Map" 
-            className="w-100 h-auto"
+            className="w-200 h-auto"
           />
           <div 
             className="position-absolute" 
@@ -94,13 +94,13 @@ export const RoleSelector = ({ onSelect }: { onSelect: (role: RoleType) => void 
       {/* MAIN CONTENT */}
       <main className="container-fluid px-5 flex-grow-1 d-flex align-items-center position-relative" style={{ zIndex: 5 }}>
         <div className="row w-100 align-items-center">
-          
-          <div className="col-lg-6 ps-lg-5">
-            <h2 className="mb-5 fw-bold" style={{ fontSize: "2.8rem", maxWidth: '550px' }}>
+          <h2 className="mb-5 fw-bold" style={{ fontSize: "2rem" }}>
               Faites Découvrir L’huile Tunisienne au Reste du Monde
             </h2>
+          <div className="col-lg-6 ps-lg-5">
+            
 
-            <div className="d-flex flex-column gap-3 mb-5">
+            <div className="d-flex flex-column gap-3 space-5">
               {(Object.keys(ROLES_INFO) as Array<keyof typeof ROLES_INFO>).map((key) => (
                 <div 
                   key={key}
