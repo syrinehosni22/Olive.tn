@@ -48,15 +48,15 @@ const AuthForm = ({ login }: Props) => {
         {...register("password")}
         required
       />
-      <div className="sign-in-checkbox-container d-flex justify-content-between">
+      <div className="login-checkbox-container d-flex justify-content-between">
         {login && (
-          <div className="stay-sign-in">
+          <div className="stay-login">
             <input
-              id="sign-in-checkbox"
+              id="login-checkbox"
               type="checkbox"
-              name="sign-in-checkbox"
+              name="login-checkbox"
             />
-            <label htmlFor="sign-in-checkbox">Stay Logged in</label>
+            <label htmlFor="login-checkbox">Stay Logged in</label>
           </div>
         )}
         {login ? (

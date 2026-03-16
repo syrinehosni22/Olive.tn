@@ -164,7 +164,7 @@ const HeaderSection = () => {
             <div className="col-lg-3 col-8 col-xxs-6 text-end order-1 order-lg-2">
               <div className="d-flex justify-content-end">
                 <div className="btn-rounded rv-inner-header-right-btns rv-15-header-right-btns rv-20-header-bottom-right-btns">
-                  <a href="/sign-in" className="d-sm-inline-block d-none">
+                  <a href="/login" className="d-sm-inline-block d-none">
                     Se connecter
                   </a>
                 </div>

@@ -60,7 +60,7 @@ const NavSection = ({ style }: Props) => {
               <Link to="/team">Team Members</Link>
             </li>
             <li>
-              <Link to="/sign-in">Sign In</Link>
+              <Link to="/login">Sign In</Link>
             </li>
             <li>
               <Link to="/sign-up">Sign Up</Link>

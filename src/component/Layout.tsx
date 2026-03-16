@@ -4,18 +4,25 @@ import React from "react";
 import FooterSection from "./footer/FooterSection";
 
 const Layout: React.FC = () => {
+  // On vérifie l'état d'authentification
+  const isAuthenticated = !!localStorage.getItem('token');
+
   return (
     <>
-      <Header />
+      {/* On affiche le Header seulement si l'utilisateur n'est pas connecté */}
+      {!isAuthenticated && <Header />}
 
       <main>
         <Outlet />
       </main>
 
-     <FooterSection
-        style="rv-20-footer"
-        logo="assets/img/logo-blanc.png"
-      />
+      {/* On affiche le Footer seulement si l'utilisateur n'est pas connecté */}
+      {!isAuthenticated && (
+        <FooterSection
+          style="rv-20-footer"
+          logo="assets/img/logo-blanc.png"
+        />
+      )}
     </>
   );
 };

@@ -164,7 +164,7 @@ const HeaderSection2 = () => {
                 <i className="fa-regular fa-bag-shopping"></i>
                 <span className="quantity">{totalCartItems}</span>
               </button>
-              <Link to="/sign-in" className="rv-12-header-login">
+              <Link to="/login" className="rv-12-header-login">
                 <i className="rv-5-cart-btn">
                   <i className="fa-regular fa-user"></i>
                 </i>

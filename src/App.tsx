@@ -1,65 +1,60 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./component/Layout";
+import BlankLayout from "./component/BlankLayout"; // Import the new one
+import ProtectedRoute from "./component/ProtectedRoute";
 
 import Home1 from "./pages/Home1";
-import Home2 from "./pages/Home2";
-import Home3 from "./pages/Home3";
+import SignIn from "./pages/SignIn";
+import RegistrationPage from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import ErrorPage from "./pages/ErrorPage";
 import About from "./pages/About";
 import Services from "./pages/Services";
-import ServiceDetailsPage from "./pages/ServiceDetailsPage";
-import Projects from "./pages/Projects";
-import ProjectDetailsPage from "./pages/ProjectDetailsPage";
-import TeamMembers from "./pages/TeamMembers";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
-import CartPage from "./pages/CartPage";
-import WishlistPage from "./pages/WishlistPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import ShopPage from "./pages/ShopPage";
-import ShopDetailsPage from "./pages/ShopDetailsPage";
-import ShopSidebarPage from "./pages/ShopSidebarPage";
-import BlogPage from "./pages/BlogPage";
-import BlogDetailsPage from "./pages/BlogDetailsPage";
-import ErrorPage from "./pages/ErrorPage";
-import RegistrationPage from "./pages/Register";
 import { ContactPage } from "./pages/ContactPage";
-import SubscriptionForm from "./component/Register/Subscription";
 
 function App() {
+  const isAuthenticated = !!localStorage.getItem('token');
+  const userRole = localStorage.getItem('userRole') || 'vendeur'; 
+
   return (
     <Router>
       <Routes>
+        
+        {/* --- GROUP 1: PAGES WITH HEADER & FOOTER --- */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home1 />} />
-          <Route path="/register" element={<RegistrationPage />} />
-          <Route path="/home-2" element={<Home2 />} />
-          <Route path="/home-3" element={<Home3 />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
-          <Route
-            path="/services/:serviceSlug"
-            element={<ServiceDetailsPage />}
-          />
-          <Route path="/projects" element={<Projects />} />
-          <Route
-            path="/projects/:projectSlug"
-            element={<ProjectDetailsPage />}
-          />
-          <Route path="/team" element={<TeamMembers />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/shop-sidebar" element={<ShopSidebarPage />} />
-          <Route path="/shop/:shopSlug" element={<ShopDetailsPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:blogSlug" element={<BlogDetailsPage />} />
           <Route path="/contact" element={<ContactPage />} />
+            {/* Auth Pages */}
+          <Route 
+            path="/login" 
+            element={!isAuthenticated ? <SignIn /> : <Navigate to="/dashboard" />} 
+          />
+          <Route 
+            path="/register" 
+            element={!isAuthenticated ? <RegistrationPage /> : <Navigate to="/dashboard" />} 
+          />
         </Route>
 
+        {/* --- GROUP 2: PAGES WITHOUT HEADER & FOOTER --- */}
+        <Route element={<BlankLayout />}>
+          
+        
+
+          {/* Protected Dashboard */}
+          <Route element={<ProtectedRoute />}>
+            <Route 
+              path="/dashboard" 
+              element={<Dashboard userRole={userRole} />} 
+            />
+          </Route>
+
+        </Route>
+
+        {/* Error Page (Usually no Header/Footer) */}
         <Route path="*" element={<ErrorPage />} />
+        
       </Routes>
     </Router>
   );
