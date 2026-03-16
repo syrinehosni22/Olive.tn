@@ -23,6 +23,7 @@ import BlogDetailsPage from "./pages/BlogDetailsPage";
 import ErrorPage from "./pages/ErrorPage";
 import RegistrationPage from "./pages/Register";
 import { ContactPage } from "./pages/ContactPage";
+import SubscriptionForm from "./component/Register/Subscription";
 
 function App() {
   return (

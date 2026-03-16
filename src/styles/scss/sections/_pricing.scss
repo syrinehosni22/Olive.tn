@@ -1056,3 +1056,14 @@
 
     }
 }
+
+
+.pricing-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.pricing-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}

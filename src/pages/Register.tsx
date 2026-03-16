@@ -2,19 +2,38 @@ import React, { useState } from "react";
 import { RoleType } from "../component/Register/types";
 import { RoleSelector } from "../component/Register/RoleSelector";
 import PricingSection from "../component/Register/PricingSection";
+import SubscriptionForm from "../component/Register/Subscription";
 
 const RegisterPage: React.FC = () => {
   const [role, setRole] = useState<RoleType>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null); // Stocke le plan choisi
 
   return (
     <div className="registration-flow">
-      {/* ÉTAPE 1 : Sélection du rôle (Design Carte du Monde) */}
-      {!role ? (
+      {/* ÉTAPE 1 : Sélection du rôle */}
+      {!role && (
         <RoleSelector onSelect={(selected) => setRole(selected)} />
-      ) : (
-        /* ÉTAPE 2 : Détails des tarifs (Apparaît après le clic sur "S'abonner") */
+      )}
+
+      {/* ÉTAPE 2 : Choix du Plan (Apparaît après le rôle) */}
+      {role && !selectedPlan && (
         <div className="animate-slide-up">
-          <PricingSection role={role} onBack={() => setRole(null)} />
+          <PricingSection 
+            role={role} 
+            onBack={() => setRole(null)} 
+            onSelectPlan={(plan) => setSelectedPlan(plan)} // Callback à ajouter dans PricingSection
+          />
+        </div>
+      )}
+
+      {/* ÉTAPE 3 : Formulaire final & Paiement */}
+      {role && selectedPlan && (
+        <div className="animate-slide-up">
+          <SubscriptionForm 
+            role={role} 
+            plan={selectedPlan} 
+            onBack={() => setSelectedPlan(null)} 
+          />
         </div>
       )}
 
