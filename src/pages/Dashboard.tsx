@@ -1,112 +1,60 @@
-import React, { useState } from "react";
-import { Search } from "lucide-react";
-import Sidebar from "../component/Sidebar/Sidebar";
-import { ROLE_THEMES } from "../component/dashboard/rolesConfig";
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { Search } from 'lucide-react';
+import { ROLE_THEMES } from '../component/dashboard/rolesConfig';
+import Sidebar from '../component/Sidebar/Sidebar';
+import ContentRenderer from '../component/dashboard/ContentRenderer';
 
-// --- Sous-composant pour le rendu du contenu ---
-const ContentRenderer: React.FC<{
-  tab: string;
-  role: string;
-  color: string;
-}> = ({ tab, role, color }) => {
-  switch (tab) {
-    case "profile":
-      return (
-        <section className="animate-fade-in">
-          <h2 style={{ fontFamily: "serif", fontWeight: "300" }}>
-            Mon Profil{" "}
-            <small className="text-muted fs-6" style={{ color }}>
-              ({role})
-            </small>
-          </h2>
-          <hr
-            style={{ borderColor: color, width: "50px", borderWidth: "2px" }}
-          />
-          {/* Ajoutez ici votre composant ProfileForm */}
-        </section>
-      );
-    case "inventory":
-      return (
-        <h2 style={{ fontFamily: "serif", fontWeight: "300" }}>
-          Gestion du Stock
-        </h2>
-      );
-    case "market":
-      return (
-        <h2 style={{ fontFamily: "serif", fontWeight: "300" }}>
-          Marché de l'Huile d'Olive
-        </h2>
-      );
-    case "sales":
-      return (
-        <h2 style={{ fontFamily: "serif", fontWeight: "300" }}>
-          Suivi des Ventes
-        </h2>
-      );
-    default:
-      return (
-        <div className="text-muted">
-          Sélectionnez une option dans le menu pour commencer.
-        </div>
-      );
-  }
-};
+// Redux Imports
+import { RootState } from '../redux/store';
+import { logout } from '../redux/slices/authSlice';
 
+// 1. Extend your Props interface to include Redux actions and state
 interface DashboardProps {
-  userRole?: string;
+  userRole: 'vendeur' | 'acheteur' | 'prestataire';
+  userData: any;
+  isAuthenticated: boolean;
+  onLogout: () => void; // From Dispatch
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ userRole = "vendeur" }) => {
-  const [activeTab, setActiveTab] = useState<string>("profile");
+const Dashboard: React.FC<DashboardProps> = ({ 
+  userRole, 
+  userData, 
+  isAuthenticated, 
+  onLogout 
+}) => {
+  const [activeTab, setActiveTab] = useState<string>('profile');
+  const config = ROLE_THEMES[userRole] || ROLE_THEMES.vendeur;
 
-  // Sécurité si le rôle n'existe pas dans la config
-  const config =
-    ROLE_THEMES[userRole as keyof typeof ROLE_THEMES] || ROLE_THEMES.vendeur;
-  // 1. Logic for Logout
-  const handleLogout = () => {
-    // Example: Clear session/token
-    localStorage.removeItem("token");
-    // Example: Redirect to login
-    window.location.href = "/login";
-  };
+  // Security check: if not authenticated, you could redirect here
+  if (!isAuthenticated) return <div>Access Denied. Please Login.</div>;
+
   return (
     <div className="d-flex w-100 bg-white min-vh-100">
-      {/* Sidebar à gauche */}
-      <Sidebar
-        config={config}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onLogout={handleLogout} // <--- Missing call added here
+      <Sidebar 
+        config={config} 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        onLogout={onLogout} // Calling the Redux Action prop
       />
 
-      {/* Zone de contenu à droite */}
-      <div className="flex-grow-1 p-4 p-md-5">
-        {/* Barre de Recherche (Style Pilule) */}
-        <header className="mb-5">
-          <div className="position-relative" style={{ maxWidth: "450px" }}>
-            <Search
-              className="position-absolute top-50 translate-middle-y ms-3 text-muted"
-              size={20}
-            />
-            <input
-              type="text"
-              className="form-control rounded-pill border-0 shadow-sm ps-5 py-2"
-              placeholder="Rechercher dans votre espace..."
-              style={{
-                backgroundColor: "#fff",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-                fontSize: "0.9rem",
-              }}
-            />
-          </div>
-        </header>
+      <div className="flex-grow-1 p-5">
+        <div className="mb-5 position-relative" style={{ maxWidth: '450px' }}>
+          <Search className="position-absolute top-50 translate-middle-y ms-3 text-muted" size={20} />
+          <input 
+            type="text"
+            className="form-control rounded-pill border-0 shadow-sm ps-5 py-2"
+            placeholder="Rechercher dans votre espace..."
+            style={{ backgroundColor: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
+          />
+        </div>
 
-        {/* Rendu Dynamique */}
         <main className="mt-4">
-          <ContentRenderer
-            tab={activeTab}
-            role={userRole}
-            color={config.primaryColor}
+          <ContentRenderer 
+            tab={activeTab} 
+            role={userRole} 
+            color={config.primaryColor} 
+            userData={userData}
           />
         </main>
       </div>
@@ -114,4 +62,18 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole = "vendeur" }) => {
   );
 };
 
-export default Dashboard;
+// 2. Map the Centralized State to Component Props
+const mapStateToProps = (state: RootState) => ({
+  // We pull from the 'profile' and 'auth' slices we created earlier
+  userRole: state.user.role,
+  userData: state.user.userInfo, // This contains seller/buyer/provider objects
+  isAuthenticated: state.auth.isAuthenticated
+});
+
+// 3. Map the Logout Action to Props
+const mapDispatchToProps = {
+  onLogout: logout
+};
+
+// 4. Wrap the component with connect
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

@@ -1,5 +1,4 @@
-import { toggleVideoModalOpen } from "../../redux/features/videoModalSlice";
-import { useAppDispatch } from "../../redux/hooks";
+
 import { useEffect, useState } from "react";
 import { Autoplay, EffectFade, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -8,10 +7,7 @@ import SplitType from "split-type";
 import { Link } from "react-router-dom";
 
 const BannerSection = () => {
-  const dispatch = useAppDispatch();
-  const openVideoModal = () => {
-    dispatch(toggleVideoModalOpen());
-  };
+  
   const [swiper, setSwiper] = useState<any>(null);
 
   useEffect(() => {
@@ -101,7 +97,6 @@ const BannerSection = () => {
                     <a
                       className="rv-20-banner_content_play_btn"
                       role="button"
-                      onClick={openVideoModal}
                     >
                       <i className="fas fa-play"></i> Play Now
                     </a>

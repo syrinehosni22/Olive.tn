@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./component/Layout";
-import BlankLayout from "./component/BlankLayout"; // Import the new one
+import BlankLayout from "./component/BlankLayout";
 import ProtectedRoute from "./component/ProtectedRoute";
 
 import Home1 from "./pages/Home1";
@@ -13,46 +13,43 @@ import Services from "./pages/Services";
 import { ContactPage } from "./pages/ContactPage";
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem('token');
+  // Helper function to check auth dynamically
+  const checkAuth = () => !!localStorage.getItem('token');
   const userRole = localStorage.getItem('userRole') || 'vendeur'; 
 
   return (
     <Router>
       <Routes>
         
-        {/* --- GROUP 1: PAGES WITH HEADER & FOOTER --- */}
+        {/* --- GROUP 1: PUBLIC PAGES WITH HEADER & FOOTER --- */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home1 />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<ContactPage />} />
-            {/* Auth Pages */}
+          
+          {/* Auth Pages: Redirect to dashboard if already logged in */}
           <Route 
             path="/login" 
-            element={!isAuthenticated ? <SignIn /> : <Navigate to="/dashboard" />} 
+            element={!checkAuth() ? <SignIn /> : <Navigate to="/dashboard" replace />} 
           />
           <Route 
             path="/register" 
-            element={!isAuthenticated ? <RegistrationPage /> : <Navigate to="/dashboard" />} 
+            element={!checkAuth() ? <RegistrationPage /> : <Navigate to="/dashboard" replace />} 
           />
         </Route>
 
-        {/* --- GROUP 2: PAGES WITHOUT HEADER & FOOTER --- */}
+        {/* --- GROUP 2: DASHBOARD / PRIVATE (BLANK LAYOUT) --- */}
         <Route element={<BlankLayout />}>
-          
-        
-
-          {/* Protected Dashboard */}
           <Route element={<ProtectedRoute />}>
             <Route 
               path="/dashboard" 
-              element={<Dashboard userRole={userRole} />} 
+              element={<Dashboard />} 
             />
           </Route>
-
         </Route>
 
-        {/* Error Page (Usually no Header/Footer) */}
+        {/* Error Page */}
         <Route path="*" element={<ErrorPage />} />
         
       </Routes>

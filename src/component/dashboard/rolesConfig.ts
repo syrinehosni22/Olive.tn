@@ -15,7 +15,7 @@ export interface RoleConfig {
 export const ROLE_THEMES: Record<string, RoleConfig> = {
   vendeur: {
     title: "Compte Vendeur",
-    primaryColor: "#8B9D77",
+    primaryColor: "#C2C2C2",
     menu: [
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'inventory', icon: ShoppingBasket, label: 'Mes Huiles' },
@@ -24,7 +24,7 @@ export const ROLE_THEMES: Record<string, RoleConfig> = {
   },
   acheteur: {
     title: "Compte Acheteur",
-    primaryColor: "#6B4F4F",
+    primaryColor: "#A3AC95",
     menu: [
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'market', icon: Store, label: 'Marché' },
@@ -33,7 +33,7 @@ export const ROLE_THEMES: Record<string, RoleConfig> = {
   },
   prestataire: {
     title: "Service Pro",
-    primaryColor: "#4A6E81",
+    primaryColor: "#E0DEB3",
     menu: [
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'services', icon: Truck, label: 'Services' },

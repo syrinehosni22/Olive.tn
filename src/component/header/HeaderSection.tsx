@@ -1,14 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import NavSection from "../navigation/NavSection";
-import { useAppDispatch } from "../../redux/hooks";
-import { toggleSearchModalOpen } from "../../redux/features/searchModalSlice";
+
 import { Link } from "react-router-dom";
 
 const HeaderSection = () => {
-  const dispatch = useAppDispatch();
 
   const openSearchModal = () => {
-    dispatch(toggleSearchModalOpen());
   };
   const [isHeaderFixed, setIsHeaderFixed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

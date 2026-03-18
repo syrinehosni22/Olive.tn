@@ -68,7 +68,7 @@ const PricingSection: React.FC<PricingProps> = ({ role, onBack, onSelectPlan }) 
         </h2>
 
         {/* SUMMARY CARDS */}
-        <div className="container">
+        <div className="container space-5">
           <div className="row justify-content-center g-4 mb-5">
             {/* PLAN CLASSIQUE */}
             <div className="col-md-5">

@@ -24,7 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ config, activeTab, setActiveTab, onLo
     <div className="d-flex flex-column align-items-center py-4 px-2"
       style={{ 
         width: '120px', 
-        backgroundColor: '#D9D9D9', 
+        backgroundColor: config.primaryColor, 
         height: '100vh',
         position: 'sticky',
         top: 0
@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ config, activeTab, setActiveTab, onLo
               width: '55px',
               height: '55px',
               borderRadius: '50%',
-              backgroundColor: activeTab === item.id ? config.primaryColor : 'white',
+              backgroundColor: activeTab === item.id ? '#0F141E' : 'white',
               color: activeTab === item.id ? 'white' : '#A0A0A0',
               transition: 'all 0.3s ease',
               border: 'none'
