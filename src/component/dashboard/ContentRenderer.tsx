@@ -2,6 +2,8 @@ import React from 'react';
 // 1. Ensure ProfileView is imported correctly
 import ProfileView from '../ProfileView/ProfileView'; 
 import { UserRole, UserData } from './user';
+import InventoryView from '../InventoryView/InventoryView';
+import Market from '../market/Market';
 
 interface ContentRendererProps {
   tab: string;
@@ -16,13 +18,13 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({ tab, role, color, use
     case 'profile': 
       // This line will only stop erroring once ProfileView.tsx 
       // is updated to accept the userData prop.
-      return <ProfileView userData={userData} />;
+      return <ProfileView />;
       
     case 'inventory': 
-      return <div style={{ color }}>Inventaire</div>;
+      return <InventoryView />;
       
     case 'market': 
-      return <div>Marché - Accès: {role}</div>;
+      return <Market role={role}/>;
       
     case 'orders': 
       return <div>Commandes</div>;

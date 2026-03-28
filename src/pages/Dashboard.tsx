@@ -1,33 +1,46 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { ROLE_THEMES } from '../component/dashboard/rolesConfig';
 import Sidebar from '../component/Sidebar/Sidebar';
 import ContentRenderer from '../component/dashboard/ContentRenderer';
 
-// Redux Imports
 import { RootState } from '../redux/store';
 import { logout } from '../redux/slices/authSlice';
 
-// 1. Extend your Props interface to include Redux actions and state
+// 1. Updated Interface: userRole must accept 'null' to match Redux state
 interface DashboardProps {
-  userRole: 'vendeur' | 'acheteur' | 'prestataire';
+  userRole: 'vendeur' | 'acheteur' | 'prestataire' | null;
   userData: any;
   isAuthenticated: boolean;
-  onLogout: () => void; // From Dispatch
+  onLogout: () => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ 
   userRole, 
   userData, 
-  isAuthenticated, 
+  isAuthenticated,
   onLogout 
 }) => {
   const [activeTab, setActiveTab] = useState<string>('profile');
+  const navigate = useNavigate();
+
+  // 2. Security/Safety Guard
+  // If the user is not authenticated or role is null, redirect them.
+  // This satisfies TypeScript because code after this block knows userRole is NOT null.
+  if (!isAuthenticated || !userRole) {
+    return <Navigate to="/" replace />;
+  }
+
+  // 3. Configuration lookup
+  // Since we handled the null case above, TypeScript knows userRole is valid here.
   const config = ROLE_THEMES[userRole] || ROLE_THEMES.vendeur;
 
-  // Security check: if not authenticated, you could redirect here
-  if (!isAuthenticated) return <div>Access Denied. Please Login.</div>;
+  const handleLogout = () => {
+    onLogout();
+    navigate('/');
+  };
 
   return (
     <div className="d-flex w-100 bg-white min-vh-100">
@@ -35,7 +48,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         config={config} 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        onLogout={onLogout} // Calling the Redux Action prop
+        onLogout={handleLogout}
       />
 
       <div className="flex-grow-1 p-5">
@@ -62,18 +75,15 @@ const Dashboard: React.FC<DashboardProps> = ({
   );
 };
 
-// 2. Map the Centralized State to Component Props
+// 4. Mapping Redux State
 const mapStateToProps = (state: RootState) => ({
-  // We pull from the 'profile' and 'auth' slices we created earlier
-  userRole: state.user.role,
-  userData: state.user.userInfo, // This contains seller/buyer/provider objects
+  userRole: state.user.role, // This is where the "null" comes from
+  userData: state.user.userInfo,
   isAuthenticated: state.auth.isAuthenticated
 });
 
-// 3. Map the Logout Action to Props
 const mapDispatchToProps = {
   onLogout: logout
 };
 
-// 4. Wrap the component with connect
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

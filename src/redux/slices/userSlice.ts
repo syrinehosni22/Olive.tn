@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // 1. THE TYPE DEFINITION (The "Shape" of your data)
 interface UserState {
+  id:string,
   userInfo: any | null; // This will hold your Mongoose object
   role: "vendeur" | "acheteur" | "prestataire" | null;
   planId: string;
@@ -11,6 +12,7 @@ interface UserState {
 
 // 2. THE INITIAL STATE (The "Starting Point")
 const initialState: UserState = {
+  id:"",
   userInfo: null,
   role: null,
   planId: "free",
@@ -25,7 +27,9 @@ export const userSlice = createSlice({
   reducers: {
     // This function acts as the "Reducer"
     loginSuccess: (state, action: PayloadAction<any>) => {
+      console.log("payload",action.payload)
       state.userInfo = action.payload;
+      state.id = action.payload.id;
       state.role = action.payload.role;
       state.planId = action.payload.planId;
       state.isAuthenticated = true;

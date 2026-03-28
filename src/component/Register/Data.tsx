@@ -1,30 +1,38 @@
 import React from 'react';
 import { 
-  User, 
-  Store, 
-  Truck, 
-  CheckCircle, 
-  Search, 
-  Star, 
-  Globe, 
-  Percent, 
-  ShieldCheck,
-  Mail,
-  MessageSquare,
-  BarChart3,
-  Handshake,
-  Share2,
-  FileUp,
-  MousePointerClick,
-  ShoppingCart,
-  Users
+  Truck, CheckCircle, Search, Star, Globe, 
+  Percent, ShieldCheck, Mail, MessageSquare, BarChart3, 
+  Handshake, Users, MousePointerClick, ShoppingCart 
 } from 'lucide-react';
-import { DetailItem, ComparisonRow } from "./types";
+// Ensure these types are exported from your types.ts file
+import { DetailItem, ComparisonRow, RoleType } from "./types";
+
+/**
+ * ICON MAPPING
+ */
+const Icons = {
+  Percent: <Percent size={24} />,
+  Handshake: <Handshake size={24} />,
+  Search: <Search size={24} />,
+  Truck: <Truck size={24} />,
+  Globe: <Globe size={24} />,
+  Star: <Star size={24} />,
+  Chart: <BarChart3 size={24} />,
+  Check: <CheckCircle size={24} />,
+  Postulate: <MousePointerClick size={24} />,
+  Ecosystem: <Users size={24} />,
+  Shield: <ShieldCheck size={24} />,
+  Mail: <Mail size={24} />,
+  Message: <MessageSquare size={24} />,
+  Cart: <ShoppingCart size={24} />,
+};
 
 /**
  * COULEURS PAR RÔLE
+ * Using Record<RoleType, ...> ensures that if you add a role to RoleType, 
+ * TS will remind you to add colors here.
  */
-export const ROLE_COLORS = {
+export const ROLE_COLORS: Record<RoleType, { selection: string; classique: string; premium: string }> = {
   acheteur: {
     selection: "#E5E5E5",
     classique: "#F8F9FA",
@@ -43,227 +51,140 @@ export const ROLE_COLORS = {
 };
 
 /**
- * 0. COMPOSANTS ICÔNES
+ * 1. SUMMARY CARDS DATA
  */
-const Icons = {
-  Acheteur: () => <User size={24} />,
-  Vendeur: () => <Store size={24} />,
-  Prestataire: () => <Truck size={24} />,
-  Check: () => <CheckCircle size={24} />,
-  Search: () => <Search size={24} />,
-  Star: () => <Star size={24} />,
-  Globe: () => <Globe size={24} />,
-  Percent: () => <Percent size={24} />,
-  Shield: () => <ShieldCheck size={24} />,
-  Mail: () => <Mail size={24} />,
-  Message: () => <MessageSquare size={24} />,
-  Chart: () => <BarChart3 size={24} />,
-  Handshake: () => <Handshake size={24} />,
-  Truck: () => <Truck size={24} />,
-  Ecosystem: () => <Users size={24} />,
-  FileUp: () => <FileUp size={24} />,
-  Postulate: () => <MousePointerClick size={24} />,
-  Cart: () => <ShoppingCart size={24} />,
-};
-
-/**
- * 1. SUMMARY CARDS DATA (Aperçu rapide sur les cartes du haut)
- */
-export const SUMMARY_CARDS: Record<string, { classic: DetailItem[], premium: DetailItem[] }> = {
+export const SUMMARY_CARDS: Record<RoleType, { classic: DetailItem[], premium: DetailItem[] }> = {
   acheteur: {
     classic: [
-      { icon: <Icons.Percent />, label: "Sans commissions" },
-      { icon: <Icons.Handshake />, label: "Direct producteur" }
+      { icon: Icons.Percent, label: "Sans commissions", title: "", description: "" },
+      { icon: Icons.Handshake, label: "Direct producteur", title: "", description: "" }
     ],
     premium: [
-      { icon: <Icons.Search />, label: "Recherche Avancée" },
-      { icon: <Icons.Truck />, label: "Transitaire de Confiance" }
+      { icon: Icons.Search, label: "Recherche Avancée", title: "", description: "" },
+      { icon: Icons.Truck, label: "Transitaire de Confiance", title: "", description: "" }
     ]
   },
   vendeur: {
     classic: [
-      { icon: <Icons.Globe />, label: "Visibilité mondiale" },
-      { icon: <Icons.Check />, label: "Profil de base" }
+      { icon: Icons.Globe, label: "Visibilité mondiale", title: "", description: "" },
+      { icon: Icons.Check, label: "Profil de base", title: "", description: "" }
     ],
     premium: [
-      { icon: <Icons.Star />, label: "Mise en avant" },
-      { icon: <Icons.Chart />, label: "Statistiques d'export" }
+      { icon: Icons.Star, label: "Mise en avant", title: "", description: "" },
+      { icon: Icons.Chart, label: "Statistiques d'export", title: "", description: "" }
     ]
   },
   prestataire: {
     classic: [
-      { icon: <Icons.Postulate />, label: "Postuler aux offres" },
-      { icon: <Icons.Check />, label: "Contact direct" }
+      { icon: Icons.Postulate, label: "Postuler aux offres", title: "", description: "" },
+      { icon: Icons.Check, label: "Contact direct", title: "", description: "" }
     ],
     premium: [
-      { icon: <Icons.Ecosystem />, label: "Publication de services" },
-      { icon: <Icons.Shield />, label: "Badge de Confiance" }
+      { icon: Icons.Ecosystem, label: "Publication de services", title: "", description: "" },
+      { icon: Icons.Shield, label: "Badge de Confiance", title: "", description: "" }
     ]
   }
 };
 
 /**
- * 2. DETAILED SECTIONS DATA (Contenu détaillé par rôle)
+ * 2. DETAILED SECTIONS DATA
  */
-export const DETAILED_PLANS: Record<string, { classic: DetailItem[], premium: DetailItem[] }> = {
+export const DETAILED_PLANS: Record<RoleType, { classic: DetailItem[], premium: DetailItem[] }> = {
   acheteur: {
     classic: [
       { 
-        icon: <Icons.Percent />, 
+        icon: Icons.Percent, 
         title: "Améliorez vos marges bénéficiaires Sans commissions", 
-        desc: "Vous pouvez acheter autant de lots que vous souhaitez sans commission." 
+        description: "Vous pouvez acheter autant de lots que vous souhaitez sans commission.",
+        label: "Sans commission"
       },
       { 
-        icon: <Icons.Handshake />, 
+        icon: Icons.Handshake, 
         title: "Achetez des lots d'huile d'olive directement du producteur", 
-        desc: "Accédez directement aux offres des producteurs, avec la quantité, le prix, la qualité et les paramètres souhaités." 
+        description: "Accédez directement aux offres des producteurs, avec la quantité, le prix, la qualité et les paramètres souhaités.",
+        label: "Direct producteur"
       },
       { 
-        icon: <Icons.Globe />, 
+        icon: Icons.Globe, 
         title: "Accès direct au Marché Tunisien", 
-        desc: "Explorez l'évolution du marché Tunisien au jour le jour." 
+        description: "Explorez l'évolution du marché Tunisien au jour le jour.",
+        label: "Marché Tunisien"
       }
     ],
     premium: [
       { 
-        icon: <Icons.Search />, 
+        icon: Icons.Search, 
         title: "Recherche Avancée de lots d'huile d'olive", 
-        desc: "Faites votre recherche en précisant la quantité, la qualité et le prix souhaités ou en vous basant sur d'autres paramètres plus spécifiques." 
+        description: "Faites votre recherche en précisant la quantité, la qualité et le prix souhaités.",
+        label: "Recherche Avancée"
       },
       { 
-        icon: <Icons.Globe />, 
-        title: "Accès direct au Marché Tunisien", 
-        desc: "Explorez l'évolution du marché Tunisien au jour le jour." 
-      },
-      { 
-        icon: <Icons.Mail />, 
+        icon: Icons.Mail, 
         title: "Recevez des alertes pour les offres", 
-        desc: "Recevez les dernières offres du marché de l'huile d'olive directement dans votre boîte de réception." 
+        description: "Recevez les dernières offres directement dans votre boîte de réception.",
+        label: "Alertes"
       },
       { 
-        icon: <Icons.Message />, 
-        title: "Publiez vos besoins spécifiques", 
-        desc: "Publiez vos demandes spécifiques d'huile d'olive pour vous connecter efficacement avec des fournisseurs." 
-      },
-      { 
-        icon: <Icons.Truck />, 
+        icon: Icons.Truck, 
         title: "Transitaire de Confiance", 
-        desc: "Rentrez en contact avec un transitaire ou une société de transport de confiance assurant un service rapide à un prix intéressant." 
-      },
-      { 
-        icon: <Icons.Message />, 
-        title: "Négociez directement sur la plateforme", 
-        desc: "Ouvrez des discussions et dialoguez directement avec les vendeurs pour négocier les termes, les prix et conclure des accords." 
+        description: "Rentrez en contact avec un transitaire assurant un service rapide.",
+        label: "Logistique"
       }
     ]
   },
   vendeur: {
     classic: [
       { 
-        icon: <Icons.Percent />, 
+        icon: Icons.Percent, 
         title: "Améliorez vos marges bénéficiaires Sans commissions", 
-        desc: "Vous pouvez vendre autant de lots que vous souhaitez sans commission." 
-      },
-      { 
-        icon: <Icons.Handshake />, 
-        title: "Vendez des lots d'huile d'olive directement à l'acheteur", 
-        desc: "Accédez directement aux demandes avec la quantité, le prix, la qualité et les paramètres souhaités." 
-      },
-      { 
-        icon: <Icons.Ecosystem />, 
-        title: "Renforcez votre ecosystème", 
-        desc: "Accédez à un carnet d'adresses de parties tierces de confiance exerçant dans le domaine de l'huile d'olive pour vous faciliter les tâches de tous les jours." 
-      },
-      { 
-        icon: <Icons.Globe />, 
-        title: "Accès direct au Marché Tunisien", 
-        desc: "Explorez l'évolution du marché Tunsien au jour le jour." 
+        description: "Vous pouvez vendre autant de lots que vous souhaitez sans commission.",
+        label: "Sans commission"
       }
     ],
     premium: [
-      { 
-        icon: <Icons.Cart />, 
-        title: "Publiez vos offres de lots d'huile d'olive", 
-        desc: "Mettez vos lots d'huile d'olive en vente en précisant la quantité, la qualité et le prix demandé en téléchargeant les papiers officiels pour une meilleure crédibilité." 
-      },
-      { 
-        icon: <Icons.Globe />, 
-        title: "Accès direct au Marché Tunisien", 
-        desc: "Explorez l'évolution du marché Tunsien au jour le jour." 
-      },
-      { 
-        icon: <Icons.Mail />, 
-        title: "Recevez des alertes pour les demandes", 
-        desc: "Recevez les dernières demandes du marché international de l'huile d'olive directement dans votre boîte de réception." 
-      },
-      { 
-        icon: <Icons.Ecosystem />, 
-        title: "Renforcez votre ecosystème", 
-        desc: "Accédez à un carnet d'adresses de parties tierces de confiance exerçant dans le domaine de l'huile d'olive pour vous faciliter les tâches de tous les jours ou bien publiez une offre de service." 
-      },
-      { 
-        icon: <Icons.Truck />, 
-        title: "Transitaire de Confiance", 
-        desc: "Rentrez en contact avec un transitaire ou une société de transport de confiance assurant un service rapide à un prix intéressant." 
-      },
-      { 
-        icon: <Icons.Message />, 
-        title: "Négociez directement sur la plateforme", 
-        desc: "Ouvrez des discussions et dialoguez directement avec les acheteurs pour négocier les termes, les prix et conclure des accords rapidement." 
-      }
+        { 
+            icon: Icons.Cart, 
+            title: "Publiez vos offres de lots d'huile d'olive", 
+            description: "Mettez vos lots d'huile d'olive en vente avec documents officiels.",
+            label: "Vente directe"
+        }
     ]
   },
   prestataire: {
     classic: [
       { 
-        icon: <Icons.Postulate />, 
+        icon: Icons.Postulate, 
         title: "Postuler pour un service", 
-        desc: "" 
+        description: "Répondez aux appels d'offres des utilisateurs.",
+        label: "Postuler"
       }
     ],
     premium: [
       { 
-        icon: <Icons.Postulate />, 
-        title: "Postulez pour un service", 
-        desc: "" 
-      },
-      { 
-        icon: <Icons.Ecosystem />, 
+        icon: Icons.Ecosystem, 
         title: "Publiez un service", 
-        desc: "" 
-      },
-      { 
-        icon: <Icons.Mail />, 
-        title: "Recevez des alertes pour les demandes de services", 
-        desc: "" 
-      },
-      { 
-        icon: <Icons.Message />, 
-        title: "Rentrez en contact direct avec le demandeur de service", 
-        desc: "" 
+        description: "Devenez visible dans l'annuaire des prestataires.",
+        label: "Visibilité"
       }
     ]
   }
 };
 
 /**
- * 3. COMPARISON TABLE DATA
+ * 3. COMPARISON DATA
  */
-export const COMPARISON_DATA: Record<string, ComparisonRow[]> = {
+export const COMPARISON_DATA: Record<RoleType, ComparisonRow[]> = {
   acheteur: [
     { feature: "Accès catalogue", classic: true, premium: true },
     { feature: "Alertes email", classic: false, premium: true },
-    { feature: "Négociation directe", classic: false, premium: true },
-    { feature: "Documents douaniers", classic: null, premium: true }
+    { feature: "Négociation directe", classic: false, premium: true }
   ],
   vendeur: [
     { feature: "Vitrine basique", classic: true, premium: true },
-    { feature: "Statistiques clics", classic: false, premium: true },
-    { feature: "Badge certifié", classic: false, premium: true }
+    { feature: "Statistiques clics", classic: false, premium: true }
   ],
   prestataire: [
     { feature: "Contact simple", classic: true, premium: true },
-    { feature: "Badge confiance", classic: false, premium: true },
-    { feature: "Priorité annuaire", classic: false, premium: true }
+    { feature: "Badge confiance", classic: false, premium: true }
   ]
 };

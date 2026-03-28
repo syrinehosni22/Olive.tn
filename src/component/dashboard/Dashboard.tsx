@@ -24,7 +24,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole = 'vendeur', userData })
   const handleLogout = () => {
     console.log("Utilisateur déconnecté");
     // Exemple : localStorage.removeItem('token');
-    // window.location.href = '/login';
+    window.location.href = '/login';
   };
 
   return (

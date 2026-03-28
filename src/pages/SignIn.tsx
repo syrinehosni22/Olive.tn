@@ -1,11 +1,12 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux'; // New
-import { setCredentials } from '../redux/slices/authSlice'; // New
+import { useDispatch } from 'react-redux'; 
+// Import your specific action from your userSlice
+import { loginSuccess } from '../redux/slices/userSlice'; 
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Initialize Dispatch
+  const dispatch = useDispatch();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -39,12 +40,11 @@ const SignIn: React.FC = () => {
         throw new Error(data.message || 'Identifiants invalides');
       }
 
-      // --- REDUX ACTION ---
-      // This updates the global state and localStorage via the slice
-      dispatch(setCredentials({ 
-        user: data.user, 
-        token: data.token 
-      }));
+      // 1. Store the token in localStorage for API calls
+      localStorage.setItem('token', data.token);
+      // 2. Dispatch loginSuccess with the user data
+      // Your slice will extract userInfo, role, and planId from this object
+      dispatch(loginSuccess(data.user));
       
       navigate('/dashboard');
       
@@ -60,6 +60,7 @@ const SignIn: React.FC = () => {
       <div className="container">
         <div className="row align-items-center">
           
+          {/* Visual Side */}
           <div className="col-lg-6 position-relative d-flex justify-content-center justify-content-lg-start mb-5 mb-lg-0">
             <div className="position-absolute d-none d-sm-block" style={{ width: '320px', height: '450px', border: '6px solid black', top: '-20px', left: '20px', zIndex: 1 }}></div>
             <div className="position-relative bg-white shadow-lg" style={{ width: '320px', height: '520px', zIndex: 2, marginLeft: '40px', overflow: 'hidden' }}>
@@ -67,6 +68,7 @@ const SignIn: React.FC = () => {
             </div>
           </div>
 
+          {/* Form Side */}
           <div className="col-lg-6 px-lg-5">
             <div className="d-flex flex-column align-items-center align-items-lg-start">
               <p className="text-uppercase mb-4 text-dark fw-medium" style={{ letterSpacing: '2px', fontSize: '0.75rem' }}>

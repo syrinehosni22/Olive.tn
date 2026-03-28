@@ -14,25 +14,28 @@ import {
 interface PricingProps {
   role: RoleType;
   onBack: () => void;
-  // Ajout du callback pour notifier le parent du choix du plan
   onSelectPlan: (plan: { id: string; name: string; price: string }) => void;
 }
 
 const PricingSection: React.FC<PricingProps> = ({ role, onBack, onSelectPlan }) => {
-  // Sécurité et récupération des données
-  const currentSummary = role ? SUMMARY_CARDS[role] : null;
-  const currentDetails = role ? DETAILED_PLANS[role] : null;
-  const currentTable = role ? COMPARISON_DATA[role] : [];
-  const colors = role ? ROLE_COLORS[role] : ROLE_COLORS.acheteur;
+  // 1. Safe data retrieval using Type Assertion to ensure RoleType can index the objects
+  // We use 'as any' as a fallback if you're unsure of the exact structure, 
+  // but 'role' should match the keys in your Data.ts.
+  const currentSummary = SUMMARY_CARDS[role as keyof typeof SUMMARY_CARDS];
+  const currentDetails = DETAILED_PLANS[role as keyof typeof DETAILED_PLANS];
+  const currentTable = COMPARISON_DATA[role as keyof typeof COMPARISON_DATA] || [];
+  
+  // 2. Defaulting colors to 'acheteur' if the current role isn't found in ROLE_COLORS
+  const colors = (ROLE_COLORS as any)[role] || ROLE_COLORS.acheteur;
 
+  // Security check
   if (!currentSummary || !currentDetails) return null;
 
-  // Fonctions de sélection mises à jour pour utiliser le callback au lieu du router
   const handleSelectClassic = () => {
     onSelectPlan({ 
       id: "classic", 
       name: "CLASSIQUE", 
-      price: "Gratuit" 
+      price: "25 DT / mois" 
     });
   };
 
@@ -47,7 +50,6 @@ const PricingSection: React.FC<PricingProps> = ({ role, onBack, onSelectPlan }) 
   return (
     <div className="bg-white min-vh-100 pb-5 animate-fade-in">
       <div className="py-5">
-        {/* HEADER & RETOUR */}
         <div className="container d-flex justify-content-between align-items-center mb-5">
           <button
             className="btn btn-outline-dark rounded-pill px-4 fw-bold"
@@ -67,7 +69,6 @@ const PricingSection: React.FC<PricingProps> = ({ role, onBack, onSelectPlan }) 
           Nos formules Business
         </h2>
 
-        {/* SUMMARY CARDS */}
         <div className="container space-5">
           <div className="row justify-content-center g-4 mb-5">
             {/* PLAN CLASSIQUE */}
@@ -75,10 +76,10 @@ const PricingSection: React.FC<PricingProps> = ({ role, onBack, onSelectPlan }) 
               <div className="card pricing-card h-100 border-2 border-dark rounded-5 p-4 shadow-sm transition-hover">
                 <div className="card-body">
                   <h3 className="fw-bold text-center">CLASSIQUE</h3>
-                  <div className="display-5 my-3 fw-bold text-center">Gratuit</div>
+                  <div className="display-5 my-3 fw-bold text-center"> 25 DT <small className="fs-6">/ mois</small></div>
                   <hr />
                   <div className="mt-4">
-                    {currentSummary.classic.map((item, idx) => (
+                    {currentSummary.classic.map((item: any, idx: number) => (
                       <div key={idx} className="d-flex gap-3 mb-3 align-items-center">
                         <div style={{ color: colors.selection }}>{item.icon}</div>
                         <div className="fw-bold">{item.label}</div>
@@ -108,7 +109,7 @@ const PricingSection: React.FC<PricingProps> = ({ role, onBack, onSelectPlan }) 
                   </div>
                   <hr className="border-secondary" />
                   <div className="mt-4">
-                    {currentSummary.premium.map((item, idx) => (
+                    {currentSummary.premium.map((item: any, idx: number) => (
                       <div key={idx} className="d-flex gap-3 mb-3 align-items-center">
                         <div className="text-warning">{item.icon}</div>
                         <div className="fw-bold">{item.label}</div>
@@ -127,24 +128,24 @@ const PricingSection: React.FC<PricingProps> = ({ role, onBack, onSelectPlan }) 
           </div>
         </div>
 
-        {/* SECTIONS DÉTAILLÉES */}
         <div className="mt-5">
           <DetailSection
-            title={`Le plan ${role?.toUpperCase()} CLASSIQUE en détail`}
+            title={`Le plan ${role.toUpperCase()} CLASSIQUE en détail`}
             items={currentDetails.classic}
             bgColor={colors.classique}
           />
           <DetailSection
-            title={`Le plan ${role?.toUpperCase()} PREMIUM en détail`}
+            title={`Le plan ${role.toUpperCase()} PREMIUM en détail`}
             items={currentDetails.premium}
             bgColor={colors.premium}
           />
 
-          <div className="container mt-5">
+          <div className="container space-5">
             <h3 className="text-center fw-bold mb-4" style={{ fontFamily: "serif" }}>
               Comparatif des fonctionnalités
             </h3>
-            <ComparisonTable data={currentTable} />
+            {/* 3. Cast the data if the ComparisonRow definition is split between files */}
+            <ComparisonTable data={currentTable as any} />
           </div>
         </div>
       </div>

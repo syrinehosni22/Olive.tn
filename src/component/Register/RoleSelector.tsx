@@ -67,7 +67,6 @@ export const RoleSelector = ({ onSelect }: { onSelect: (role: RoleType) => void 
           right: '-5%', 
           width: '55%', 
           zIndex: 0,
-          opacity: 0.1,
           pointerEvents: 'none'
         }}
       >
@@ -79,13 +78,13 @@ export const RoleSelector = ({ onSelect }: { onSelect: (role: RoleType) => void 
           />
           <div 
             className="position-absolute" 
-            style={{ top: '42%', left: '52%', transform: 'translate(-50%, -100%)' }}
+            style={{ top: '50%', left: '52%', transform: 'translate(-50%, -100%)' }}
           >
             <div className="d-flex flex-column align-items-center">
-                <div className="bg-white p-1 rounded-circle shadow border border-light" style={{ width: '60px', height: '60px' }}>
+                <div className="p-1 rounded-circle shadow border border-light" style={{ width: '60px', height: '60px' }}>
                     <img src="https://flagcdn.com/tn.svg" alt="TN" className="rounded-circle w-100 h-100 object-fit-cover" />
                 </div>
-                <div style={{ width: '2px', height: '15px', background: '#ccc' }}></div>
+                <div style={{ width: '2px', height: '15px'}}></div>
             </div>
           </div>
         </div>

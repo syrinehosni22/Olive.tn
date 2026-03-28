@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Autoplay, EffectFade, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -7,7 +6,6 @@ import SplitType from "split-type";
 import { Link } from "react-router-dom";
 
 const BannerSection = () => {
-  
   const [swiper, setSwiper] = useState<any>(null);
 
   useEffect(() => {
@@ -52,23 +50,19 @@ const BannerSection = () => {
                     <span></span> A Dream Garden Home
                   </span> */}
                   <h1 className="rv-20-banner_content_heading rv-text-anime">
-                    Olive
+                    <img
+                      src="/assets/img/logo.png"
+                      alt="logo"
+                      className="rv-1-logo"
+                    />
                   </h1>
                   <h3 className="rv-text-anime">
                     The Best Of Tunisian Olive Oil
                   </h3>
-                  <h4 className="rv-text-anime">Tn</h4>
                   <div className="rv-20-banner_button_area">
                     <Link to="/register" className="rv-20-banner_content_btn">
                       S'inscrire
                     </Link>
-                    {/* <a
-                      className="rv-20-banner_content_play_btn"
-                      role="button"
-                      onClick={openVideoModal}
-                    >
-                      <i className="fas fa-play"></i> Play Now
-                    </a> */}
                   </div>
                 </div>
               </div>
@@ -84,22 +78,19 @@ const BannerSection = () => {
                     <span></span> A Dream Garden Home
                   </span> */}
                   <h1 className="rv-20-banner_content_heading rv-text-anime">
-                    Olive
+                    <img
+                      src="/assets/img/logo.png"
+                      alt="logo"
+                      className="rv-1-logo"
+                    />
                   </h1>
                   <h3 className="rv-text-anime">
                     The Best Of Tunisian Olive Oil
                   </h3>
-                  <h4 className="rv-text-anime">Tn</h4>
                   <div className="rv-20-banner_button_area">
                     <Link to="/register" className="rv-20-banner_content_btn">
                       S'inscrire
                     </Link>
-                    <a
-                      className="rv-20-banner_content_play_btn"
-                      role="button"
-                    >
-                      <i className="fas fa-play"></i> Play Now
-                    </a>
                   </div>
                 </div>
               </div>

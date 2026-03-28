@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { updateUser } from '../../redux/slices/authSlice';
 import { UserData } from '../../component/dashboard/user';
@@ -12,45 +12,39 @@ interface User extends UserData {
   seller?: SellerData;
 }
 
-interface ProfileViewProps {
-  userData: UserData; // Prop from ContentRenderer
+// These are the props we expect from Redux via connect
+interface StateProps {
+  reduxUser: User | null;
 }
 
-const ProfileView: React.FC<ProfileViewProps> = ({ userData: propData }) => {
-  const dispatch = useDispatch();
-  
-  // 1. Get data from Redux if available
-  const reduxUser = useSelector((state: RootState) => state.auth.user);
+interface DispatchProps {
+  dispatchUpdateUser: (user: any) => void;
+}
 
-  // 2. Initialize state IMMEDIATELY with propData to avoid "loading" block
-  // We use a function initializer to ensure this only runs once
-  const [formData, setFormData] = useState<User | null>(() => {
-    return (reduxUser as User) || (propData as User) || null;
-  });
+// Combined Props
+type ProfileViewProps = StateProps & DispatchProps;
 
+const ProfileView: React.FC<ProfileViewProps> = ({ reduxUser, dispatchUpdateUser }) => {
+  // Initialize local state with Redux data (or propData as fallback)
+  const [formData, setFormData] = useState<User | null>(reduxUser );
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 3. Keep local state in sync if Redux or Props update externally
+  // Sync local state if Redux state changes (e.g., login status changes)
   useEffect(() => {
-    if (reduxUser) {
-      setFormData(reduxUser as User);
-    } else if (propData) {
-      setFormData(propData as User);
+    if (!reduxUser) {
+      setFormData(reduxUser);
     }
-  }, [reduxUser, propData]);
+  }, [reduxUser]);
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, 
-    section?: 'seller'
-  ) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, section?: 'seller') => {
     const { name, value } = e.target;
     setFormData((prev) => {
       if (!prev) return null;
       if (section) {
-        return {
-          ...prev,
-          [section]: { ...prev[section], [name]: value }
+        return { 
+          ...prev, 
+          [section]: { ...(prev.seller || {}), [name]: value } 
         };
       }
       return { ...prev, [name]: value };
@@ -60,7 +54,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({ userData: propData }) => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData) return;
-    
     setIsSaving(true);
     setError(null);
 
@@ -75,11 +68,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({ userData: propData }) => {
       });
 
       if (!response.ok) throw new Error('Erreur lors de la mise à jour');
-
+      
       const updatedData = await response.json();
-
-      // Update Redux global state
-      dispatch(updateUser(updatedData.user || formData));
+      
+      // Call the prop passed by mapDispatchToProps
+      dispatchUpdateUser(updatedData.user || formData);
       
       alert("Profil mis à jour !");
     } catch (err: any) {
@@ -89,69 +82,81 @@ const ProfileView: React.FC<ProfileViewProps> = ({ userData: propData }) => {
     }
   };
 
-  // If we truly have no data from either Redux or Props, show loading
-  if (!formData) return <div className="p-5 text-center">Chargement...</div>;
+  if (!formData) return <div className="p-5 text-center font-serif">Chargement...</div>;
+
+  // --- Styles remain the same ---
+  const inputStyle = { border: 'none', borderBottom: '1px solid #e0e0e0', borderRadius: '0', padding: '10px 0', backgroundColor: 'transparent', fontSize: '0.9rem' };
+  const labelStyle = { fontSize: '0.7rem', textTransform: 'uppercase' as const, letterSpacing: '1.5px', color: '#999', marginBottom: '0' };
 
   return (
-    <section className="container py-4">
+    <section className="container py-5" style={{ maxWidth: '850px' }}>
       <form onSubmit={handleSave}>
-        <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-          {/* FIXED: Use formData, not props or userData */}
-          <h2 style={{ fontFamily: 'serif' }}>Mon Profil ({formData.role})</h2>
-          <span className="badge bg-dark">Plan: {formData.planId || 'Basic'}</span>
+        {/* Header Section */}
+        <div className="mb-5 pb-4 border-bottom">
+          <p className="text-uppercase tracking-widest text-muted mb-2" style={{ fontSize: '0.7rem' }}>
+            Compte / {formData.role}
+          </p>
+          <div className="d-flex justify-content-between align-items-end">
+            <h1 style={{ fontFamily: 'serif', fontSize: '2.8rem', margin: 0 }}>Mon Profil</h1>
+            <div className="text-end">
+              <span className="badge rounded-pill bg-light text-dark border px-3 py-2" style={{ fontSize: '0.7rem' }}>
+                PLAN: {formData.planId || 'BASIC'}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+        {error && <div className="alert alert-danger rounded-0 border-0 small">{error}</div>}
 
-        <div className="row g-3 mb-5">
+        <div className="row g-5">
           <div className="col-md-6">
-            <label className="form-label">Prénom</label>
-            <input type="text" name="firstName" className="form-control" value={formData.firstName || ''} onChange={(e) => handleChange(e)} />
+            <div className="form-group">
+              <label style={labelStyle}>Prénom</label>
+              <input type="text" name="firstName" className="form-control" style={inputStyle} value={formData.firstName || ''} onChange={handleChange} />
+            </div>
           </div>
           <div className="col-md-6">
-            <label className="form-label">Nom</label>
-            <input type="text" name="name" className="form-control" value={formData.name || ''} onChange={(e) => handleChange(e)} />
+            <div className="form-group">
+              <label style={labelStyle}>Nom</label>
+              <input type="text" name="name" className="form-control" style={inputStyle} value={formData.name || ''} onChange={handleChange} />
+            </div>
           </div>
           <div className="col-md-6">
-            <label className="form-label">Téléphone</label>
-            <input type="text" name="phone" className="form-control" value={formData.phone || ''} onChange={(e) => handleChange(e)} />
+            <div className="form-group">
+              <label style={labelStyle}>Téléphone</label>
+              <input type="text" name="phone" className="form-control" style={inputStyle} value={formData.phone || ''} onChange={handleChange} />
+            </div>
           </div>
           <div className="col-md-6">
-            <label className="form-label">Email</label>
-            <input type="email" className="form-control bg-light" value={formData.email} disabled />
+            <div className="form-group">
+              <label style={labelStyle}>Email</label>
+              <input type="email" className="form-control" style={{...inputStyle, color: '#ccc', cursor: 'not-allowed'}} value={formData.email} disabled />
+            </div>
           </div>
         </div>
 
         {formData.role === 'vendeur' && (
-          <div className="card shadow-sm mb-4">
-            <div className="card-header bg-success text-white">Détails Professionnels</div>
-            <div className="card-body row g-3">
+          <div className="mt-5 pt-5">
+            <h3 className="font-serif mb-4" style={{ fontSize: '1.5rem' }}>Détails Professionnels</h3>
+            <div className="row g-5">
               <div className="col-md-6">
-                <label className="form-label">Matricule RNE</label>
-                <input 
-                  type="text" 
-                  name="registrationNumber" 
-                  className="form-control" 
-                  value={formData.seller?.registrationNumber || ''} 
-                  onChange={(e) => handleChange(e, 'seller')} 
-                />
+                <div className="form-group">
+                  <label style={labelStyle}>Matricule RNE</label>
+                  <input type="text" name="registrationNumber" className="form-control" style={inputStyle} value={formData.seller?.registrationNumber || ''} onChange={(e) => handleChange(e, 'seller')} />
+                </div>
               </div>
               <div className="col-md-6">
-                <label className="form-label">Capacité Production</label>
-                <input 
-                  type="number" 
-                  name="capacity" 
-                  className="form-control" 
-                  value={formData.seller?.capacity || 0} 
-                  onChange={(e) => handleChange(e, 'seller')} 
-                />
+                <div className="form-group">
+                  <label style={labelStyle}>Capacité Production (L/an)</label>
+                  <input type="number" name="capacity" className="form-control" style={inputStyle} value={formData.seller?.capacity || 0} onChange={(e) => handleChange(e, 'seller')} />
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        <div className="text-end">
-          <button type="submit" className="btn btn-dark btn-lg" disabled={isSaving}>
+        <div className="mt-5 pt-5 d-flex justify-content-end">
+          <button type="submit" className="btn btn-dark rounded-pill px-5 py-3 text-uppercase tracking-widest" disabled={isSaving}>
             {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
           </button>
         </div>
@@ -160,4 +165,14 @@ const ProfileView: React.FC<ProfileViewProps> = ({ userData: propData }) => {
   );
 };
 
-export default ProfileView;
+// --- Redux Connection ---
+
+const mapStateToProps = (state: RootState): StateProps => ({
+  reduxUser: state.user.userInfo as User | null,
+});
+
+const mapDispatchToProps = (dispatch: any): DispatchProps => ({
+  dispatchUpdateUser: (data) => dispatch(updateUser(data)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileView);

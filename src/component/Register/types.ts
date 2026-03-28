@@ -1,17 +1,25 @@
+import React from "react";
 
-export type RoleType = 'acheteur' | 'vendeur' | 'prestataire' | null;
+export type RoleType = "acheteur" | "vendeur" | "prestataire";
 
-// types.ts
+
+// Adjust based on your actual data structure
+export interface PlanDetails {
+  classic: DetailItem[];
+  premium: DetailItem[];
+}
+
 
 export interface DetailItem {
-  icon: React.ReactNode; // C'est ici le secret : ReactNode accepte <Icons.Search />, etc.
-  title?: string;
-  label?: string;
-  desc?: string;
+  icon: React.ReactNode;
+  label: string;       // Used for summary cards
+  title: string;       // Used for detail sections
+  description: string; // Used for detail sections (make sure it's NOT desc)
 }
 
 export interface ComparisonRow {
   feature: string;
-  classic: boolean | null;
-  premium: boolean | null;
+  classic: boolean | string | null;
+  premium: boolean | string | null;
 }
+

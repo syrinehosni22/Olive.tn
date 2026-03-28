@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { oilLotData } from "../../data/Data";
 import DivAnimateYAxis from "../utils/DivAnimateYAxis";
+// Import the ready-made icon components
+import { Droplet, ChevronRight } from "lucide-react";
 
 const OliveOilLotsSection = () => {
   return (
@@ -15,7 +17,6 @@ const OliveOilLotsSection = () => {
           </div>
         </div>
 
-        {/* Change slice(0, 3) to (0, 8) to match the 8 cards in the image */}
         <DivAnimateYAxis className="row g-4">
           {oilLotData.slice(0, 8).map((item) => (
             <div className="col-xl-3 col-lg-4 col-md-6" key={item.id}>
@@ -24,7 +25,8 @@ const OliveOilLotsSection = () => {
                   {/* Left Icon Section */}
                   <div className="oil-card-left">
                     <div className={`oil-drop-circle ${item.type.toLowerCase().includes('premium') ? 'premium' : ''}`}>
-                      <i className="fas fa-tint"></i>
+                      {/* Using the Droplet component */}
+                      <Droplet size={20} fill="currentColor" strokeWidth={1.5} />
                     </div>
                   </div>
 
@@ -50,7 +52,8 @@ const OliveOilLotsSection = () => {
 
                   {/* Right Arrow Section */}
                   <div className="oil-card-right">
-                    <i className="fas fa-chevron-right"></i>
+                    {/* Using the ChevronRight component */}
+                    <ChevronRight size={20} strokeWidth={2.5} />
                   </div>
                 </div>
               </Link>

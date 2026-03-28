@@ -165,13 +165,6 @@ const HeaderSection = () => {
                     Se connecter
                   </a>
                 </div>
-                <button
-                  className="rv-1-header-mobile-menu-btn rv-3-def-btn rv-20-mobile-menu-btn d-lg-none d-inline-block"
-                  id="rv-1-header-mobile-menu-btn"
-                  onClick={openSidebar}
-                >
-                  <i className="fa-regular fa-bars"></i>
-                </button>
               </div>
             </div>
           </div>
