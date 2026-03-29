@@ -57,7 +57,6 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole = 'vendeur', userData })
 
         {/* Zone de contenu dynamique */}
         <main className="mt-4">
-          test
           <ContentRenderer 
             tab={activeTab} 
             role={userRole} 

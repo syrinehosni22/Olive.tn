@@ -1,8 +1,8 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux'; 
-// Import your specific action from your userSlice
-import { loginSuccess } from '../redux/slices/userSlice'; 
+import { setCredentials } from '../redux/slices/authSlice'; // Ensure path is correct
+import { loginSuccess } from '../redux/slices/userSlice';
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
@@ -22,38 +22,39 @@ const SignIn: React.FC = () => {
     });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const response = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json' 
+      },
+      // THIS IS THE CRITICAL LINE FOR COOKIES
+      credentials: 'include', 
+      body: JSON.stringify(formData),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Identifiants invalides');
-      }
-
-      // 1. Store the token in localStorage for API calls
-      localStorage.setItem('token', data.token);
-      // 2. Dispatch loginSuccess with the user data
-      // Your slice will extract userInfo, role, and planId from this object
-      dispatch(loginSuccess(data.user));
-      
-      navigate('/dashboard');
-      
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(data.message || 'Identifiants invalides');
     }
-  };
+
+    // Since the token is now in a cookie, we only pass the user object to Redux
+    dispatch(setCredentials({ user: data.user }));
+    dispatch(loginSuccess(data.user));
+    
+    navigate('/dashboard');
+  } catch (err: any) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="bg-white min-vh-100 d-flex align-items-center py-5 overflow-hidden">

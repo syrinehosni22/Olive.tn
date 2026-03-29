@@ -25,7 +25,6 @@ const Sidebar: React.FC<SidebarProps> = ({ config, activeTab, setActiveTab, onLo
       style={{ 
         width: '120px', 
         backgroundColor: config.primaryColor, 
-        height: '100vh',
         position: 'sticky',
         top: 0
       }}>

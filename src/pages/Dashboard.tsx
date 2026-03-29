@@ -30,6 +30,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   // If the user is not authenticated or role is null, redirect them.
   // This satisfies TypeScript because code after this block knows userRole is NOT null.
   if (!isAuthenticated || !userRole) {
+    console.log("isAuthenticated userRole",isAuthenticated,userRole)
     return <Navigate to="/" replace />;
   }
 
@@ -77,7 +78,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
 // 4. Mapping Redux State
 const mapStateToProps = (state: RootState) => ({
-  userRole: state.user.role, // This is where the "null" comes from
+  userRole: state.user.role, 
   userData: state.user.userInfo,
   isAuthenticated: state.auth.isAuthenticated
 });

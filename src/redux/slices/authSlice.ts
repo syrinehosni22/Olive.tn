@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// Define the shape of our User object
 interface User {
   id: string;
   email: string;
@@ -10,55 +9,43 @@ interface User {
 }
 
 interface AuthState {
-  token: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  loading: boolean;
+  isInitialLoading: boolean; 
 }
 
-// 1. Initialize state from localStorage to persist login across refreshes
 const initialState: AuthState = {
-  token: localStorage.getItem('token'),
-  user: null, // Full user data is usually fetched or stored as JSON
-  isAuthenticated: !!localStorage.getItem('token'),
-  loading: false,
+  user: null,
+  isAuthenticated: false,
+  isInitialLoading: true, // Start true to prevent "flicker" on refresh
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // 2. Action to call when login is successful
-    setCredentials: (
-      state,
-      action: PayloadAction<{ user: User; token: string }>
-    ) => {
-      const { user, token } = action.payload;
-      state.user = user;
-      state.token = token;
+    setCredentials: (state, action: PayloadAction<{ user: User }>) => {
+      state.user = action.payload.user;
       state.isAuthenticated = true;
-
-      // Sync with localStorage so App.tsx and ProtectedRoutes stay updated
-      localStorage.setItem('token', token);
-      localStorage.setItem('userRole', user.role);
+      state.isInitialLoading = true;
     },
-
-    // 3. Action to call for Logout
     logout: (state) => {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
-      
-      localStorage.removeItem('token');
-      localStorage.removeItem('userRole');
+      state.isInitialLoading = false;
     },
-
-    // 4. (Optional) Action to update user info specifically
+    setAuthFailed: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.isInitialLoading = false;
+    },
+    // ADD THIS BACK IN:
     updateUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
     }
   },
 });
 
-export const { setCredentials, logout, updateUser } = authSlice.actions;
+// Make sure to export it here too!
+export const { setCredentials, logout, setAuthFailed, updateUser } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,15 +1,16 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const ProtectedRoute: React.FC = () => {
-  // On vérifie la présence du token
-  const token = localStorage.getItem('token');
-  
-  if (!token) {
-    return <Navigate to="/login" replace />;
+const ProtectedRoute = () => {
+  const { isAuthenticated } = useSelector((state: any) => state.auth);
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    // We pass the current path into the 'state' property
+    // so the SignIn page knows where to send the user back to.
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Outlet permet de rendre les composants enfants définis dans le Router
   return <Outlet />;
 };
 

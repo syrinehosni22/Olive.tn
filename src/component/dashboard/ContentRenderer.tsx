@@ -1,9 +1,10 @@
-import React from 'react';
+import React from "react";
 // 1. Ensure ProfileView is imported correctly
-import ProfileView from '../ProfileView/ProfileView'; 
-import { UserRole, UserData } from './user';
-import InventoryView from '../InventoryView/InventoryView';
-import Market from '../market/Market';
+import ProfileView from "../ProfileView/ProfileView";
+import { UserRole, UserData } from "./user";
+import InventoryView from "../InventoryView/InventoryView";
+import Market from "../market/Market";
+import { AddressBook } from "../adressBook/AddressBook";
 
 interface ContentRendererProps {
   tab: string;
@@ -12,26 +13,34 @@ interface ContentRendererProps {
   userData: UserData;
 }
 
-const ContentRenderer: React.FC<ContentRendererProps> = ({ tab, role, color, userData }) => {
+const ContentRenderer: React.FC<ContentRendererProps> = ({
+  tab,
+  role,
+  color,
+  userData,
+}) => {
   // Use the 'color' or 'role' props if needed to avoid "unused variable" warnings
   switch (tab) {
-    case 'profile': 
-      // This line will only stop erroring once ProfileView.tsx 
+    case "profile":
+      // This line will only stop erroring once ProfileView.tsx
       // is updated to accept the userData prop.
       return <ProfileView />;
-      
-    case 'inventory': 
+
+    case "inventory":
       return <InventoryView />;
+
+    case "market":
+      return <Market role={role} />;
+
+    case "addressBook":
+      return <AddressBook />;
       
-    case 'market': 
-      return <Market role={role}/>;
-      
-    case 'orders': 
+    case "orders":
       return <div>Commandes</div>;
-      
-    case 'messages': 
+
+    case "messages":
       return <div>Messages</div>;
-      
+
     default:
       return <div className="text-muted">Sélectionnez une option.</div>;
   }

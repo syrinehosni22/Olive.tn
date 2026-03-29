@@ -1,4 +1,14 @@
-import { User, ShoppingBasket, CircleDollarSign, Package, Store, Truck, MessageSquare, LucideIcon } from 'lucide-react';
+import { 
+  User, 
+  ShoppingBasket, 
+  CircleDollarSign, 
+  Package, 
+  Store, 
+  Truck, 
+  MessageSquare, 
+  BookUser, // Nouvelle icône pour le carnet d'adresses
+  LucideIcon 
+} from 'lucide-react';
 
 export interface MenuItem {
   id: string;
@@ -20,6 +30,7 @@ export const ROLE_THEMES: Record<string, RoleConfig> = {
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'inventory', icon: ShoppingBasket, label: 'Mes Huiles' },
       { id: 'sales', icon: CircleDollarSign, label: 'Ventes' },
+      { id: 'addressBook', icon: BookUser, label: 'Carnet d’adresses' },
     ]
   },
   acheteur: {
@@ -38,6 +49,7 @@ export const ROLE_THEMES: Record<string, RoleConfig> = {
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'services', icon: Truck, label: 'Services' },
       { id: 'messages', icon: MessageSquare, label: 'Messages' },
+      { id: 'addressBook', icon: BookUser, label: 'Carnet d’adresses' },
     ]
   }
 };

@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import Layout from "./component/Layout";
 import BlankLayout from "./component/BlankLayout";
 import ProtectedRoute from "./component/ProtectedRoute";
@@ -11,47 +14,65 @@ import ErrorPage from "./pages/ErrorPage";
 import About from "./pages/About";
 import Services from "./pages/Services";
 import { ContactPage } from "./pages/ContactPage";
+import { setAuthFailed, setCredentials } from "./redux/slices/authSlice";
+import api from "./config/api";
+import { loginSuccess } from "./redux/slices/userSlice";
 
 function App() {
-  // Helper function to check auth dynamically
-  const checkAuth = () => !!localStorage.getItem('token');
-  const userRole = localStorage.getItem('userRole') || 'vendeur'; 
+  const dispatch = useDispatch();
+  const { isAuthenticated, setIsAuthenticated } = useSelector((state: any) => state.auth);
+
+  const verifyUserSession = useCallback(async () => {
+    try {
+      const response = await api.get("/auth/me");
+      console.log(response.data.user)
+      if (response.data.user) {
+        dispatch(setCredentials(response.data.user));
+            dispatch(loginSuccess(response.data.user));
+        
+      } else {
+        dispatch(setAuthFailed());
+      }
+    } catch (error) {
+      dispatch(setAuthFailed());
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    verifyUserSession();
+  }, [verifyUserSession]);
+
+  
 
   return (
     <Router>
       <Routes>
-        
-        {/* --- GROUP 1: PUBLIC PAGES WITH HEADER & FOOTER --- */}
+        {/* PUBLIC ROUTES */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home1 />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<ContactPage />} />
           
-          {/* Auth Pages: Redirect to dashboard if already logged in */}
+          {/* Auth Pages: Redirect to dashboard ONLY if they try to access /login while logged in */}
           <Route 
             path="/login" 
-            element={!checkAuth() ? <SignIn /> : <Navigate to="/dashboard" replace />} 
+            element={!isAuthenticated ? <SignIn /> : <Navigate to="/dashboard" replace />} 
           />
           <Route 
             path="/register" 
-            element={!checkAuth() ? <RegistrationPage /> : <Navigate to="/dashboard" replace />} 
+            element={!isAuthenticated ? <RegistrationPage /> : <Navigate to="/dashboard" replace />} 
           />
         </Route>
 
-        {/* --- GROUP 2: DASHBOARD / PRIVATE (BLANK LAYOUT) --- */}
+        {/* PROTECTED ROUTES */}
         <Route element={<BlankLayout />}>
           <Route element={<ProtectedRoute />}>
-            <Route 
-              path="/dashboard" 
-              element={<Dashboard />} 
-            />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
         </Route>
 
-        {/* Error Page */}
         <Route path="*" element={<ErrorPage />} />
-        
       </Routes>
     </Router>
   );
