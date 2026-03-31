@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { ROLE_THEMES } from '../component/dashboard/rolesConfig';
@@ -7,11 +7,10 @@ import Sidebar from '../component/Sidebar/Sidebar';
 import ContentRenderer from '../component/dashboard/ContentRenderer';
 
 import { RootState } from '../redux/store';
-import { logout } from '../redux/slices/authSlice';
+import { logout, logoutUser } from '../redux/slices/authSlice';
 
-// 1. Updated Interface: userRole must accept 'null' to match Redux state
 interface DashboardProps {
-  userRole: 'vendeur' | 'acheteur' | 'prestataire' | null;
+  userRole: 'vendeur' | 'acheteur' | 'prestataire' | undefined | null;
   userData: any;
   isAuthenticated: boolean;
   onLogout: () => void;
@@ -24,23 +23,35 @@ const Dashboard: React.FC<DashboardProps> = ({
   onLogout 
 }) => {
   const [activeTab, setActiveTab] = useState<string>('profile');
-  const navigate = useNavigate();
+  
+  // NOUVEL ÉTAT : Pour stocker le contact sélectionné depuis l'AddressBook
+  const [selectedContact, setSelectedContact] = useState<any>(null);
 
-  // 2. Security/Safety Guard
-  // If the user is not authenticated or role is null, redirect them.
-  // This satisfies TypeScript because code after this block knows userRole is NOT null.
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Security Guard
   if (!isAuthenticated || !userRole) {
-    console.log("isAuthenticated userRole",isAuthenticated,userRole)
     return <Navigate to="/" replace />;
   }
 
-  // 3. Configuration lookup
-  // Since we handled the null case above, TypeScript knows userRole is valid here.
+  // Configuration lookup
   const config = ROLE_THEMES[userRole] || ROLE_THEMES.vendeur;
 
-  const handleLogout = () => {
-    onLogout();
-    navigate('/');
+  // Logout Handler
+  const handleLogout = async () => {
+    try {
+      await onLogout(); 
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      localStorage.removeItem('user_session'); 
+      dispatch(logout()); 
+      logoutUser(); 
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error("Logout process failed:", error);
+      dispatch(logout());
+      navigate('/');
+    }
   };
 
   return (
@@ -49,7 +60,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         config={config} 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        onLogout={handleLogout}
+        onLogout={handleLogout} 
       />
 
       <div className="flex-grow-1 p-5">
@@ -66,9 +77,12 @@ const Dashboard: React.FC<DashboardProps> = ({
         <main className="mt-4">
           <ContentRenderer 
             tab={activeTab} 
+            setTab={setActiveTab}           // Pour permettre le switch d'onglet
             role={userRole} 
             color={config.primaryColor} 
             userData={userData}
+            selectedContact={selectedContact}   // On passe le contact actuel
+            setSelectedContact={setSelectedContact} // Fonction pour définir le contact
           />
         </main>
       </div>
@@ -76,15 +90,14 @@ const Dashboard: React.FC<DashboardProps> = ({
   );
 };
 
-// 4. Mapping Redux State
 const mapStateToProps = (state: RootState) => ({
-  userRole: state.user.role, 
-  userData: state.user.userInfo,
+  userRole: state.auth.user?.role, 
+  userData: state.auth.user,
   isAuthenticated: state.auth.isAuthenticated
 });
 
 const mapDispatchToProps = {
-  onLogout: logout
+ onLogout: logoutUser
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

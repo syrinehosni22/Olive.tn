@@ -6,7 +6,7 @@ import {
   Store, 
   Truck, 
   MessageSquare, 
-  BookUser, // Nouvelle icône pour le carnet d'adresses
+  BookUser, 
   LucideIcon 
 } from 'lucide-react';
 
@@ -25,12 +25,13 @@ export interface RoleConfig {
 export const ROLE_THEMES: Record<string, RoleConfig> = {
   vendeur: {
     title: "Compte Vendeur",
-    primaryColor: "#C2C2C2",
+    primaryColor: "#A3AC95", // Ajusté pour matcher l'émeraude de vos boutons
     menu: [
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'inventory', icon: ShoppingBasket, label: 'Mes Huiles' },
-      { id: 'sales', icon: CircleDollarSign, label: 'Ventes' },
       { id: 'addressBook', icon: BookUser, label: 'Carnet d’adresses' },
+      { id: 'messages', icon: MessageSquare, label: 'Messages' }, // Ajouté pour la redirection
+      { id: 'sales', icon: CircleDollarSign, label: 'Ventes' },
     ]
   },
   acheteur: {
@@ -39,6 +40,8 @@ export const ROLE_THEMES: Record<string, RoleConfig> = {
     menu: [
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'market', icon: Store, label: 'Marché' },
+      { id: 'addressBook', icon: BookUser, label: 'Carnet d’adresses' }, // Ajouté pour l'acheteur
+      { id: 'messages', icon: MessageSquare, label: 'Messages' }, // Ajouté pour la redirection
       { id: 'orders', icon: Package, label: 'Commandes' },
     ]
   },
@@ -48,8 +51,8 @@ export const ROLE_THEMES: Record<string, RoleConfig> = {
     menu: [
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'services', icon: Truck, label: 'Services' },
-      { id: 'messages', icon: MessageSquare, label: 'Messages' },
       { id: 'addressBook', icon: BookUser, label: 'Carnet d’adresses' },
+      { id: 'messages', icon: MessageSquare, label: 'Messages' },
     ]
   }
 };

@@ -40,7 +40,7 @@ export const userSlice = createSlice({
       state.planId = action.payload;
       if (state.userInfo) state.userInfo.planId = action.payload;
     },
-    logout: (state) => {
+    logoutUser: (state) => {
       return initialState; // Resets everything to null/false
     }
   }
@@ -48,7 +48,7 @@ export const userSlice = createSlice({
 
 // 4. THE EXPORTS (The "Tools" for the rest of your app)
 // These are the "Actions" you will call in your components
-export const { loginSuccess, updatePlan, logout } = userSlice.actions;
+export const { loginSuccess, updatePlan, logoutUser } = userSlice.actions;
 
 // This is the "Reducer" you will put in your combineReducers
 export default userSlice.reducer;

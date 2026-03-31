@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ADDRESS_DATA } from './AddressBook';
+import { ADDRESS_DATA } from './types';
 // Import your ADDRESS_DATA from wherever it's stored
 // import { ADDRESS_DATA } from './AddressBook'; 
 

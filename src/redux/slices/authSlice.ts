@@ -1,4 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+// 1. Create the Async Thunk for API Logout
+export const logoutUser =  async ( ) => {
+    try {
+      // Must use withCredentials to allow the browser to delete the cookie
+      await axios.post('http://localhost:5000/api/auth/logout',{}, { withCredentials: true });
+      return true;
+    } catch (error: any) {
+      return error.response?.data;
+    }
+  }
 
 interface User {
   id: string;
@@ -17,7 +29,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isInitialLoading: true, // Start true to prevent "flicker" on refresh
+  isInitialLoading: true,
 };
 
 const authSlice = createSlice({
@@ -27,8 +39,9 @@ const authSlice = createSlice({
     setCredentials: (state, action: PayloadAction<{ user: User }>) => {
       state.user = action.payload.user;
       state.isAuthenticated = true;
-      state.isInitialLoading = true;
+      state.isInitialLoading = false; // Set to false once user is loaded
     },
+    // Manual local logout (can still be used for forced resets)
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
@@ -39,13 +52,12 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isInitialLoading = false;
     },
-    // ADD THIS BACK IN:
     updateUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
     }
   },
+ 
 });
 
-// Make sure to export it here too!
 export const { setCredentials, logout, setAuthFailed, updateUser } = authSlice.actions;
 export default authSlice.reducer;

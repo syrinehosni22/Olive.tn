@@ -10,11 +10,7 @@ const HeaderSection = () => {
   const [isHeaderFixed, setIsHeaderFixed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const openSidebar = () => {
-    setIsSidebarOpen(true);
-    setIsHeaderFixed(false);
-  };
-
+  
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
