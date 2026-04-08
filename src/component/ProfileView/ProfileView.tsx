@@ -1,178 +1,307 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { connect } from 'react-redux';
-import { RootState } from '../../redux/store';
-import { updateUser } from '../../redux/slices/authSlice';
-import { UserData } from '../../component/dashboard/user';
+import React, { useState, useEffect, ChangeEvent } from "react";
+import { connect } from "react-redux";
+import { RootState } from "../../redux/store";
+import { updateUser } from "../../redux/slices/authSlice";
 
 // --- Interfaces ---
-interface SellerData { registrationNumber?: string; capacity?: number; }
-interface User extends UserData {
-  planId?: string;
+interface SellerData {
+  brandName?: string;
+  producerType?: "Producteur" | "Collecteur" | "Moulin" | "Exportateur";
+  region?: string;
+  delegation?: string;
+  millName?: string;
+  millType?: "Traditionnel" | "Chaine Continue" | "Super-Presse";
+  capacity?: number;
+  altitude?: number;
+  taxId?: string;
+}
+
+interface User {
+  id: string;
+  role: "vendeur" | "acheteur" | "prestataire";
+  email: string;
+  firstName?: string;
+  name?: string;
   phone?: string;
+  companyName?: string;
+  registrationNumber?: string;
+  planId?: string;
   seller?: SellerData;
 }
 
-// These are the props we expect from Redux via connect
-interface StateProps {
+interface Props {
   reduxUser: User | null;
+  dispatchUpdateUser: (user: User) => void;
 }
 
-interface DispatchProps {
-  dispatchUpdateUser: (user: any) => void;
-}
+const ProfileView: React.FC<Props> = ({ reduxUser, dispatchUpdateUser }) => {
+  const [formData, setFormData] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-// Combined Props
-type ProfileViewProps = StateProps & DispatchProps;
-
-const ProfileView: React.FC<ProfileViewProps> = ({ reduxUser, dispatchUpdateUser }) => {
-  // Initialize local state with Redux data (or propData as fallback)
-  const [formData, setFormData] = useState<User | null>(reduxUser );
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Sync local state if Redux state changes (e.g., login status changes)
+  // 1. Fetch Profile on Mount
   useEffect(() => {
-    if (!reduxUser) {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/user/profile/" + reduxUser?.id,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
+        const data = await res.json();
+
+        if (res.ok && data.user) {
+          setFormData(data.user);
+          dispatchUpdateUser(data.user);
+        }
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (reduxUser?.id) fetchProfile();
+  }, [dispatchUpdateUser, reduxUser?.id]);
+
+  // Sync state if Redux changes (protection contre le premier rendu)
+  useEffect(() => {
+    if (reduxUser && !formData) {
       setFormData(reduxUser);
     }
-  }, [reduxUser]);
+  }, [reduxUser, formData]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, section?: 'seller') => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    section?: "seller",
+  ) => {
     const { name, value } = e.target;
-    setFormData((prev) => {
-      if (!prev) return null;
-      if (section) {
-        return { 
-          ...prev, 
-          [section]: { ...(prev.seller || {}), [name]: value } 
-        };
-      }
-      return { ...prev, [name]: value };
-    });
+    if (!formData) return;
+
+    if (section === "seller") {
+      setFormData({
+        ...formData,
+        seller: { ...(formData.seller || {}), [name]: value },
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
+    // 1. BLOCAGE IMMEDIAT
     e.preventDefault();
-    if (!formData) return;
+    e.stopPropagation();
+
+    // 2. VERIFICATION DE L'ID (On teste id et _id pour être sûr)
+    const userId = formData?.id || (formData as any)?._id;
+
+    if (!formData || !userId) {
+      console.error("ID manquant, impossible de sauvegarder", formData);
+      return;
+    }
+
     setIsSaving(true);
-    setError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/user/profile/update', {
-        method: 'PATCH',
+      const res = await fetch("http://localhost:5000/api/user/profile", {
+        method: "PATCH",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ user: formData }),
       });
 
-      if (!response.ok) throw new Error('Erreur lors de la mise à jour');
-      
-      const updatedData = await response.json();
-      
-      // Call the prop passed by mapDispatchToProps
-      dispatchUpdateUser(updatedData.user || formData);
-      
-      alert("Profil mis à jour !");
-    } catch (err: any) {
-      setError(err.message);
+      const data = await res.json();
+
+      if (res.ok && data.user) {
+        // 3. MISE À JOUR REDUX
+        dispatchUpdateUser(data.user);
+
+        // 4. L'ALERTE (ne rafraîchit pas car preventDefault a bloqué l'événement)
+        setTimeout(() => {
+          alert("Profil mis à jour !");
+        }, 100);
+      } else {
+        alert(data.message || "Erreur serveur");
+      }
+    } catch (err) {
+      console.error("Erreur Fetch:", err);
+      alert("Erreur de connexion au serveur");
     } finally {
       setIsSaving(false);
     }
   };
+  if (isLoading)
+    return (
+      <div className="p-5 text-center font-serif text-muted">
+        Récupération de votre profil...
+      </div>
+    );
+  if (!formData)
+    return (
+      <div className="p-5 text-center text-danger">
+        Session expirée ou utilisateur introuvable.
+      </div>
+    );
 
-  if (!formData) return <div className="p-5 text-center font-serif">Chargement...</div>;
-
-  // --- Styles remain the same ---
-  const inputStyle = { border: 'none', borderBottom: '1px solid #e0e0e0', borderRadius: '0', padding: '10px 0', backgroundColor: 'transparent', fontSize: '0.9rem' };
-  const labelStyle = { fontSize: '0.7rem', textTransform: 'uppercase' as const, letterSpacing: '1.5px', color: '#999', marginBottom: '0' };
+  const inputStyle = {
+    border: "none",
+    borderBottom: "1px solid #e0e0e0",
+    borderRadius: "0",
+    padding: "10px 0",
+    marginBottom: "15px",
+  };
+  const labelStyle = {
+    fontSize: "0.7rem",
+    textTransform: "uppercase" as const,
+    color: "#999",
+    letterSpacing: "1px",
+  };
 
   return (
-    <section className="container py-5" style={{ maxWidth: '850px' }}>
-      <form onSubmit={handleSave}>
-        {/* Header Section */}
-        <div className="mb-5 pb-4 border-bottom">
-          <p className="text-uppercase tracking-widest text-muted mb-2" style={{ fontSize: '0.7rem' }}>
-            Compte / {formData.role}
-          </p>
-          <div className="d-flex justify-content-between align-items-end">
-            <h1 style={{ fontFamily: 'serif', fontSize: '2.8rem', margin: 0 }}>Mon Profil</h1>
-            <div className="text-end">
-              <span className="badge rounded-pill bg-light text-dark border px-3 py-2" style={{ fontSize: '0.7rem' }}>
-                PLAN: {formData.planId || 'BASIC'}
-              </span>
-            </div>
+    <div className="container py-5" style={{ maxWidth: "850px" }}>
+      <form
+        onSubmit={handleSave}
+        className="bg-white p-4 shadow-sm border rounded"
+      >
+        <div className="d-flex justify-content-between align-items-center mb-5">
+          <h2 className="font-serif m-0">Mon Profil</h2>
+          <span className="badge bg-light text-dark border px-3 py-2">
+            {formData.role}
+          </span>
+        </div>
+
+        <div className="row">
+          <div className="col-md-6">
+            <label style={labelStyle}>Prénom</label>
+            <input
+              type="text"
+              name="firstName"
+              className="form-control"
+              style={inputStyle}
+              value={formData.firstName || ""}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <label style={labelStyle}>Nom</label>
+            <input
+              type="text"
+              name="name"
+              className="form-control"
+              style={inputStyle}
+              value={formData.name || ""}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <label style={labelStyle}>Téléphone</label>
+            <input
+              type="text"
+              name="phone"
+              className="form-control"
+              style={inputStyle}
+              value={formData.phone || ""}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <label style={labelStyle}>Email (Lecture seule)</label>
+            <input
+              type="email"
+              className="form-control"
+              style={{ ...inputStyle, color: "#aaa" }}
+              value={formData.email}
+              disabled
+            />
           </div>
         </div>
 
-        {error && <div className="alert alert-danger rounded-0 border-0 small">{error}</div>}
-
-        <div className="row g-5">
-          <div className="col-md-6">
-            <div className="form-group">
-              <label style={labelStyle}>Prénom</label>
-              <input type="text" name="firstName" className="form-control" style={inputStyle} value={formData.firstName || ''} onChange={handleChange} />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="form-group">
-              <label style={labelStyle}>Nom</label>
-              <input type="text" name="name" className="form-control" style={inputStyle} value={formData.name || ''} onChange={handleChange} />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="form-group">
-              <label style={labelStyle}>Téléphone</label>
-              <input type="text" name="phone" className="form-control" style={inputStyle} value={formData.phone || ''} onChange={handleChange} />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="form-group">
-              <label style={labelStyle}>Email</label>
-              <input type="email" className="form-control" style={{...inputStyle, color: '#ccc', cursor: 'not-allowed'}} value={formData.email} disabled />
-            </div>
-          </div>
-        </div>
-
-        {formData.role === 'vendeur' && (
-          <div className="mt-5 pt-5">
-            <h3 className="font-serif mb-4" style={{ fontSize: '1.5rem' }}>Détails Professionnels</h3>
-            <div className="row g-5">
+        {formData.role === "vendeur" && (
+          <div className="mt-5 pt-4 border-top">
+            <h4 className="mb-4 font-serif" style={{ color: "#2c3e50" }}>
+              Spécifications Vendeur
+            </h4>
+            <div className="row">
               <div className="col-md-6">
-                <div className="form-group">
-                  <label style={labelStyle}>Matricule RNE</label>
-                  <input type="text" name="registrationNumber" className="form-control" style={inputStyle} value={formData.seller?.registrationNumber || ''} onChange={(e) => handleChange(e, 'seller')} />
-                </div>
+                <label style={labelStyle}>Marque</label>
+                <input
+                  type="text"
+                  name="brandName"
+                  className="form-control"
+                  style={inputStyle}
+                  value={formData.seller?.brandName || ""}
+                  onChange={(e) => handleChange(e, "seller")}
+                />
               </div>
               <div className="col-md-6">
-                <div className="form-group">
-                  <label style={labelStyle}>Capacité Production (L/an)</label>
-                  <input type="number" name="capacity" className="form-control" style={inputStyle} value={formData.seller?.capacity || 0} onChange={(e) => handleChange(e, 'seller')} />
-                </div>
+                <label style={labelStyle}>Type</label>
+                <select
+                  name="producerType"
+                  className="form-select shadow-none"
+                  style={inputStyle}
+                  value={formData.seller?.producerType || ""}
+                  onChange={(e) => handleChange(e, "seller")}
+                >
+                  <option value="">Choisir...</option>
+                  <option value="Producteur">Producteur</option>
+                  <option value="Moulin">Moulin</option>
+                  <option value="Exportateur">Exportateur</option>
+                </select>
+              </div>
+              <div className="col-md-6">
+                <label style={labelStyle}>Capacité (L)</label>
+                <input
+                  type="number"
+                  name="capacity"
+                  className="form-control"
+                  style={inputStyle}
+                  value={formData.seller?.capacity || ""}
+                  onChange={(e) => handleChange(e, "seller")}
+                />
+              </div>
+              <div className="col-md-6">
+                <label style={labelStyle}>Système</label>
+                <select
+                  name="millType"
+                  className="form-select shadow-none"
+                  style={inputStyle}
+                  value={formData.seller?.millType || ""}
+                  onChange={(e) => handleChange(e, "seller")}
+                >
+                  <option value="">Choisir...</option>
+                  <option value="Chaine Continue">Chaine Continue</option>
+                  <option value="Traditionnel">Traditionnel</option>
+                </select>
               </div>
             </div>
           </div>
         )}
 
-        <div className="mt-5 pt-5 d-flex justify-content-end">
-          <button type="submit" className="btn btn-dark rounded-pill px-5 py-3 text-uppercase tracking-widest" disabled={isSaving}>
-            {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="btn btn-dark w-100 mt-5 py-3 text-uppercase fw-bold"
+          disabled={isSaving}
+        >
+          {isSaving ? "Mise à jour..." : "Enregistrer les modifications"}
+        </button>
       </form>
-    </section>
+    </div>
   );
 };
 
-// --- Redux Connection ---
-
-const mapStateToProps = (state: RootState): StateProps => ({
-  reduxUser: state.user.userInfo as User | null,
+const mapStateToProps = (state: RootState) => ({
+  reduxUser: state.user.userInfo,
 });
 
-const mapDispatchToProps = (dispatch: any): DispatchProps => ({
-  dispatchUpdateUser: (data) => dispatch(updateUser(data)),
+const mapDispatchToProps = (dispatch: any) => ({
+  dispatchUpdateUser: (user: User) => dispatch(updateUser(user)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileView);

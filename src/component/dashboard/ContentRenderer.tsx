@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import ProfileView from "../ProfileView/ProfileView";
 import { UserRole, UserData } from "./user";
 import InventoryView from "../InventoryView/InventoryView";
 import Market from "../market/Market";
 import { AddressBook } from "../adressBook/AddressBook";
+import MessengerPage from "../messenger/Messenger";
 
 interface ContentRendererProps {
   tab: string;
@@ -24,7 +25,8 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({
   selectedContact,
   setSelectedContact,
 }) => {
-  
+  const [activeTab, setActiveTab] = useState<string>('messenger');
+
   // Fonction utilitaire pour rediriger vers un message spécifique
   const handleInitiateContact = (contact: any) => {
     setSelectedContact(contact);
@@ -58,34 +60,10 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({
       );
 
     case "messages":
-      return (
-        <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold mb-4" style={{ color }}>Messagerie</h2>
-          {selectedContact ? (
-            <div className="flex flex-col space-y-4">
-              <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
-                <p className="text-xs uppercase tracking-wider text-emerald-600 font-bold">Discussion avec</p>
-                <p className="text-lg font-semibold text-emerald-900">{selectedContact.name}</p>
-                <p className="text-sm text-emerald-700">{selectedContact.email}</p>
-              </div>
-              {/* Le composant de chat réel irait ici */}
-              <div className="h-64 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
-                <p className="text-gray-400">Interface de message pour {selectedContact.name}...</p>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-20">
-              <p className="text-gray-400 italic">Sélectionnez un contact dans l'Address Book pour démarrer une conversation.</p>
-              <button 
-                onClick={() => setTab("addressBook")}
-                className="mt-4 text-emerald-700 font-semibold underline"
-              >
-                Aller à l'Address Book
-              </button>
-            </div>
-          )}
-        </div>
-      );
+      return <MessengerPage 
+            selectedContact={selectedContact} 
+            setTab={setActiveTab} 
+          />
 
     default:
       return (
