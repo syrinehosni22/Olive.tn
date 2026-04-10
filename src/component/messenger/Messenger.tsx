@@ -1,80 +1,86 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, Users } from 'lucide-react'; // Ajout de Users
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { RootState } from '../../redux/store';
 import { useChatSocket } from './useChatSocket';
-import { ChatHeader } from './ChatHeader';
-import { MessageList } from './MessageList';
-import { Contact } from './types';
+import ConversationList from './ConversationList';
+import ChatWindow from './ChatWindow';
+import { Conversation, Contact } from './types';
 
-interface MessengerPageProps {
-  selectedContact: Contact | null;
-  setTab: (tab: string) => void;
-}
+const API_BASE_URL = 'http://localhost:5000/api/messages';
 
-const MessengerPage: React.FC<MessengerPageProps> = ({ selectedContact, setTab }) => {
-  const [input, setInput] = useState<string>("");
+const MessengerPage: React.FC<{ 
+  selectedContact: Contact | null; 
+  setTab: (t: string) => void; 
+  setSelectedContact: (c: Contact) => void 
+}> = ({ selectedContact, setTab, setSelectedContact }) => {
+  
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [input, setInputValue] = useState("");
+  const user = useSelector((state: RootState) => state.user);
+  const currentUserId = user.id ? String(user.id) : null;
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { messages, sendMessage } = useChatSocket(selectedContact);
 
+  const { messages, sendMessage } = useChatSocket(
+    currentUserId, 
+    selectedContact?.id ? String(selectedContact.id) : null
+  );
+
+  const fetchConversations = useCallback(async () => {
+    if (!currentUserId) return;
+    try {
+      const res = await axios.get(`${API_BASE_URL}/contacts/${currentUserId}`);
+      if (Array.isArray(res.data)) setConversations(res.data);
+    } catch (err) { console.error(err); }
+  }, [currentUserId]);
+
+  useEffect(() => { fetchConversations(); }, [fetchConversations]);
+
+  // Rafraîchir la sidebar quand un nouveau message arrive
+  useEffect(() => {
+    if (messages.length > 0) fetchConversations();
+  }, [messages, fetchConversations]);
+
+  // Scroll auto
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
-    sendMessage(input);
-    setInput("");
+    if (input.trim()) {
+      sendMessage(input);
+      setInputValue("");
+    }
   };
 
   return (
-    <div className="flex h-[600px] bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="flex-1 flex flex-col min-w-0">
-        {selectedContact ? (
-          <>
-            <ChatHeader contact={selectedContact} />
-            <MessageList messages={messages} scrollRef={scrollRef} />
-            
-            <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-gray-100 flex items-center space-x-3">
-              <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                <Paperclip size={20} />
-              </button>
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Écrivez votre message..."
-                className="flex-1 bg-gray-100 border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none"
-              />
-              <button 
-                type="submit" 
-                disabled={!input.trim()}
-                className="p-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 disabled:opacity-50 transition-colors shadow-sm"
-              >
-                <Send size={18} />
-              </button>
-            </form>
-          </>
-        ) : (
-          /* Écran vide / Sélection de contact */
-          <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 p-8 text-center">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4">
-              <Users size={32} />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">Vos messages</h3>
-            <p className="text-gray-500 mb-6 max-w-xs">
-              Sélectionnez un contact dans votre carnet d'adresses pour commencer à discuter.
-            </p>
-            <button
-              onClick={() => setTab('contacts')} // Redirige vers l'onglet contacts
-              className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium shadow-sm"
-            >
-              Ouvrir le carnet d'adresses
-            </button>
-          </div>
-        )}
-      </div>
+    <div className="d-flex border shadow-sm overflow-hidden" style={{ height: '750px', backgroundColor: '#fff', borderRadius: '8px' }}>
+      <ConversationList 
+        conversations={conversations} 
+        selectedId={selectedContact?.id} 
+        onSelect={(c: any) => setSelectedContact({ id: c.id, name: c.name } as Contact)}
+        onOpenContacts={() => setTab('contacts')}
+      />
+
+      {selectedContact && currentUserId ? (
+        <ChatWindow 
+          contactName={selectedContact.name}
+          messages={messages}
+          currentUserId={currentUserId}
+          inputValue={input}
+          setInputValue={setInputValue}
+          onSend={handleSend}
+          scrollRef={scrollRef}
+        />
+      ) : (
+        <div className="flex-1 d-flex flex-column align-items-center justify-content-center text-muted bg-light">
+          <h3 style={{ fontFamily: 'serif', color: '#ccc' }}>Messenger</h3>
+          <p className="small">Sélectionnez une discussion pour commencer</p>
+        </div>
+      )}
     </div>
   );
 };

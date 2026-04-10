@@ -1,45 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Contact, Message } from './types';
 
-const SOCKET_URL = "http://localhost:4000";
-
-export const useChatSocket = (selectedContact: Contact | null) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+export const useChatSocket = (userId: string | null, contactId: string | null) => {
+  const [messages, setMessages] = useState<any[]>([]);
+  const socket = useRef<Socket | null>(null);
 
   useEffect(() => {
-    const s: Socket = io(SOCKET_URL);
-    setSocket(s);
+    if (!userId) return;
+    socket.current = io("http://localhost:5000");
+    socket.current.emit("addUser", userId);
 
-    s.on('receive_message', (newMessage: Message) => {
-      setMessages((prev) => [...prev, newMessage]);
+    socket.current.on("getMessage", (data) => {
+      // On affiche seulement si ça vient du contact actuellement ouvert
+      if (String(data.senderId) === String(contactId)) {
+        setMessages((prev) => [...prev, data]);
+      }
     });
 
-    return () => {
-      s.disconnect();
-    };
-  }, []);
+    return () => { socket.current?.disconnect(); };
+  }, [userId, contactId]);
 
   useEffect(() => {
-    if (socket && selectedContact) {
-      socket.emit('join_room', selectedContact.id);
-      // Optional: setMessages([]) or fetchHistory(selectedContact.id)
+    if (userId && contactId) {
+      fetch(`http://localhost:5000/api/messages/history/${userId}/${contactId}`)
+        .then(res => res.json())
+        .then(data => setMessages(Array.isArray(data) ? data : []));
     }
-  }, [socket, selectedContact]);
+  }, [userId, contactId]);
 
-  const sendMessage = (text: string) => {
-    if (socket && selectedContact) {
-      const messageData: Message = {
-        sender: 'me',
-        text,
-        receiverId: selectedContact.id,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      socket.emit('send_message', messageData);
-      setMessages((prev) => [...prev, messageData]);
+  const sendMessage = useCallback((text: string) => {
+    console.log(contactId,userId)
+    if (socket.current && contactId && userId) {
+      const msg = { senderId: userId, receiverId: contactId, text, createdAt: new Date().toISOString() };
+      socket.current.emit("sendMessage", msg);
+      setMessages((prev) => [...prev, msg]); // Mise à jour locale immédiate
     }
-  };
+  }, [userId, contactId]);
 
   return { messages, sendMessage };
 };

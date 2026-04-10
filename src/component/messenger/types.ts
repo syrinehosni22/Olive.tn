@@ -6,9 +6,16 @@ export interface Contact {
 }
 
 export interface Message {
-  id?: string | number;
-  sender: 'me' | 'them';
+  id?: string;
+  senderId: string;
   text: string;
-  time: string;
-  receiverId?: string | number;
+  createdAt: string;
+}
+
+export interface Conversation {
+  id: string; // ID de l'interlocuteur
+  name: string;
+  lastMessage: string;
+  updatedAt: string;
+  isOnline: boolean;
 }

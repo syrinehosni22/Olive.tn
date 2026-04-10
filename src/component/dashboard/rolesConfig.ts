@@ -40,7 +40,6 @@ export const ROLE_THEMES: Record<string, RoleConfig> = {
     menu: [
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'market', icon: Store, label: 'Marché' },
-      { id: 'addressBook', icon: BookUser, label: 'Carnet d’adresses' }, // Ajouté pour l'acheteur
       { id: 'messages', icon: MessageSquare, label: 'Messages' }, // Ajouté pour la redirection
       { id: 'orders', icon: Package, label: 'Commandes' },
     ]
@@ -51,7 +50,6 @@ export const ROLE_THEMES: Record<string, RoleConfig> = {
     menu: [
       { id: 'profile', icon: User, label: 'Profil' },
       { id: 'services', icon: Truck, label: 'Services' },
-      { id: 'addressBook', icon: BookUser, label: 'Carnet d’adresses' },
       { id: 'messages', icon: MessageSquare, label: 'Messages' },
     ]
   }

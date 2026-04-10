@@ -1,127 +1,169 @@
-import React, { useState, useMemo } from 'react';
-import { ADDRESS_DATA } from './types'; 
-import { AddressSection } from './AddressSection';
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
+
+interface Provider {
+  _id: string; // ou id selon votre backend
+  firstName: string;
+  name: string;
+  companyName: string;
+  serviceType: string;
+  email: string;
+  proEmail: string;
+  phone: string;
+  website?: string;
+  region?: string;
+}
 
 interface AddressBookProps {
   onContactSelect?: (contact: any) => void;
 }
 
 export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => {
-  // On stocke l'ID du prestataire sélectionné
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
 
-  // Recherche du prestataire dans la structure profonde
-  const selectedProvider = useMemo(() => {
-    if (!selectedProviderId) return null;
-
-    for (const category of ADDRESS_DATA) {
-      for (const service of category.services) { // On descend d'un niveau (le service)
-        const provider = service.providers.find(p => p.id === selectedProviderId);
-        if (provider) {
-          return { 
-            ...provider, 
-            serviceTitle: service.title,
-            categoryTitle: category.title 
-          };
-        }
+  // 1. Fetch des données depuis le backend
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        setLoading(true);
+        // On récupère uniquement les utilisateurs ayant le rôle 'prestataire'
+        const response = await axios.get("http://localhost:5000/api/user/providers");
+        setProviders(response.data);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des prestataires:", err);
+      } finally {
+        setLoading(false);
       }
-    }
-    return null;
-  }, [selectedProviderId]);
+    };
+    fetchProviders();
+  }, []);
 
-  // --- VUE DÉTAILLÉE DU PRESTATAIRE ---
+  // 2. Organisation des données par catégories (serviceType)
+  const categorizedProviders = useMemo(() => {
+    return providers.reduce((acc: { [key: string]: Provider[] }, provider) => {
+      const category = provider.serviceType || "Autres Services";
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(provider);
+      return acc;
+    }, {});
+  }, [providers]);
+
+  // 3. Gestion du prestataire sélectionné (Vue Détail)
+  const selectedProvider = useMemo(() => {
+    return providers.find(p => p._id === selectedProviderId) || null;
+  }, [selectedProviderId, providers]);
+
+  const styles = {
+    headerTitle: { fontFamily: 'serif', fontSize: '2.5rem', fontWeight: '300' as const, color: '#000' },
+    subTitle: { fontFamily: 'serif', fontSize: '1.1rem', marginBottom: '1.5rem', marginTop: '2.5rem', color: '#000', borderBottom: '1px solid #000', paddingBottom: '8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
+    label: { fontSize: '0.65rem', textTransform: 'uppercase' as const, letterSpacing: '1.5px', color: '#999', fontWeight: '600', display: 'block', marginBottom: '8px' },
+    card: { border: '1px solid #f2f2f2', borderRadius: '0', padding: '1.5rem', marginBottom: '1rem', backgroundColor: '#fff', cursor: 'pointer', transition: '0.3s' },
+    buttonPrimary: { border: 'none', backgroundColor: '#000', color: '#fff', fontSize: '0.65rem', textTransform: 'uppercase' as const, letterSpacing: '1.5px', fontWeight: '600', padding: '15px 40px', cursor: 'pointer', borderRadius: '0' },
+    buttonLink: { background: 'none', border: 'none', color: '#999', fontSize: '0.65rem', textTransform: 'uppercase' as const, letterSpacing: '1.5px', fontWeight: '600', cursor: 'pointer', padding: '0', textDecoration: 'none' },
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }
+  };
+
+  if (loading) return <div className="container py-5 text-center">Chargement de l'annuaire...</div>;
+
+  // --- VUE DÉTAILLÉE ---
   if (selectedProvider) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB] px-6 py-10 lg:px-12 animate-in fade-in duration-500">
-        <div className="mx-auto max-w-3xl">
-          <button 
-            onClick={() => setSelectedProviderId(null)} 
-            className="group mb-8 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors"
-          >
-            <span className="text-lg">←</span> Retour aux services
-          </button>
+      <section className="container py-5" style={{ maxWidth: '1100px' }}>
+        <header className="d-flex justify-content-between align-items-end mb-5 border-bottom pb-3">
+          <div>
+            <span style={styles.label}>Prestataire / {selectedProvider.serviceType}</span>
+            <h1 style={styles.headerTitle}>{selectedProvider.companyName || `${selectedProvider.firstName} ${selectedProvider.name}`}</h1>
+          </div>
+          <button onClick={() => setSelectedProviderId(null)} style={styles.buttonLink}>← Retour</button>
+        </header>
 
-          <article className="bg-white shadow-sm border border-gray-200 rounded-sm overflow-hidden">
-            <div className="h-1.5 w-full bg-emerald-800"></div>
-            <div className="p-8 lg:p-12">
-              <div className="flex justify-between items-start">
-                <span className="text-emerald-800 font-bold text-xs uppercase tracking-widest">
-                  {selectedProvider.categoryTitle} / {selectedProvider.serviceTitle}
-                </span>
+        <div className="fade-in pb-5">
+          <div style={{ border: '1px solid #f2f2f2', padding: '2rem' }}>
+            <h2 style={styles.subTitle}>Informations Professionnelles</h2>
+            <div style={styles.grid}>
+              <div>
+                <span style={styles.label}>Contact</span>
+                <p>{selectedProvider.firstName} {selectedProvider.name}</p>
               </div>
-              
-              <h1 className="font-serif text-4xl font-black mt-4 mb-2 text-gray-900">
-                {selectedProvider.name} {/* Nom de la personne ou entreprise */}
-              </h1>
-              
-              <div className="prose prose-slate max-w-none mt-6">
-                <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                  { selectedProvider.description}
-                </p>
+              <div>
+                <span style={styles.label}>Email Pro</span>
+                <p>{selectedProvider.proEmail || selectedProvider.email}</p>
               </div>
-
-              {/* Infos spécifiques au prestataire (ex: Localisation, prix) */}
-              <div className="bg-gray-50 p-4 rounded-md mb-8 grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span style={styles.label}>Localisation</span>
+                <p>{selectedProvider.region || "Non spécifiée"}</p>
+              </div>
+              {selectedProvider.website && (
                 <div>
-                  <span className="block text-gray-400 uppercase text-[10px] font-bold">Localisation</span>
-                  <span className="font-medium text-gray-900">{selectedProvider.location}</span>
+                  <span style={styles.label}>Site Web</span>
+                  <p><a href={selectedProvider.website} target="_blank" rel="noreferrer" style={{color: '#000'}}>{selectedProvider.website}</a></p>
                 </div>
-                <div>
-                  <span className="block text-gray-400 uppercase text-[10px] font-bold">Expérience</span>
-                  <span className="font-medium text-gray-900">{selectedProvider.experience} ans</span>
-                </div>
-              </div>
-
-              <div className="mt-10 pt-10 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div>
-                  <h4 className="text-sm font-bold uppercase tracking-wider text-gray-900">Contacter {selectedProvider.name}</h4>
-                  <p className="text-gray-500 text-sm">Ce prestataire recevra vos coordonnées par email.</p>
-                </div>
-                
-                <button 
-                  onClick={() => {
-                    if (onContactSelect) {
-                      onContactSelect({
-                        providerId: selectedProvider.id,
-                        name: selectedProvider.name,
-                        service: selectedProvider.serviceTitle,
-                        email: selectedProvider.email
-                      });
-                    }
-                  }}
-                  className="w-full sm:w-auto bg-emerald-800 text-white hover:bg-emerald-900 px-8 py-4 text-sm font-bold uppercase tracking-widest transition-all"
-                >
-                  Envoyer un message
-                </button>
-              </div>
+              )}
             </div>
-          </article>
+            
+            <div className="mt-5 pt-4 border-top">
+              <button 
+                style={styles.buttonPrimary}
+                onClick={() => onContactSelect && onContactSelect(selectedProvider)}
+              >
+                Contacter l'expert
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   // --- VUE LISTE ---
   return (
-    <div className="min-h-screen bg-[#F9FAFB] px-6 py-10 lg:px-12">
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-16 bg-white p-12 shadow-sm border-t-4 border-emerald-800 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h1 className="font-serif text-5xl font-black uppercase text-gray-900">Annuaire des Prestataires</h1>
-            <p className="text-gray-500 mt-2 font-medium">Trouvez l'expert adapté à vos besoins oléicoles</p>
-          </div>
-        </header>
-
-        <div className="space-y-12">
-          {ADDRESS_DATA.map((category, index) => (
-            <AddressSection 
-              key={index} 
-              category={category}
-              onProviderClick={(id) => setSelectedProviderId(id)} 
-            />
-          ))}
+    <section className="container py-5" style={{ maxWidth: '1100px' }}>
+      <header className="d-flex justify-content-between align-items-end mb-5 border-bottom pb-3">
+        <div>
+          <span style={styles.label}>Plateforme B2B — Olive Tn</span>
+          <h1 style={styles.headerTitle}>Annuaire des Experts</h1>
         </div>
+        <div style={{ textAlign: 'right' }}>
+          <span style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
+            {Object.keys(categorizedProviders).length} Domaines d'expertise
+          </span>
+        </div>
+      </header>
+
+      <div className="fade-in">
+        {Object.entries(categorizedProviders).map(([categoryName, providersList]) => (
+          <div key={categoryName} className="mb-5">
+            <h3 style={styles.subTitle}>{categoryName.replace(/_/g, ' ')}</h3>
+            <div style={styles.grid}>
+              {providersList.map((p) => (
+                <div 
+                  key={p._id} 
+                  style={styles.card} 
+                  className="provider-card-hover"
+                  onClick={() => setSelectedProviderId(p._id)}
+                >
+                  <span style={styles.label}>{p.region || 'National'}</span>
+                  <h4 style={{ fontSize: '1.1rem', margin: '10px 0', fontWeight: '500' }}>
+                    {p.companyName || `${p.firstName} ${p.name}`}
+                  </h4>
+                  <p style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0' }}>
+                    Expert en {categoryName.replace(/_/g, ' ')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
+
+      <footer className="mt-5 pt-5 border-top text-center">
+        <p style={{ ...styles.label, color: '#ccc', letterSpacing: '4px' }}>
+          Zynex Solution — Olive Tn Excellence
+        </p>
+      </footer>
+    </section>
   );
 };
+export default AddressBook;
