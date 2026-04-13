@@ -1,19 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import ProfileView from "../ProfileView/ProfileView";
 import { UserRole, UserData } from "./user";
 import InventoryView from "../InventoryView/InventoryView";
 import Market from "../market/Market";
 import { AddressBook } from "../adressBook/AddressBook";
 import MessengerPage from "../messenger/Messenger";
+import PublishBuyRequest from "../PublishBuyRequest/PublishBuyRequest";
+import MarketRequestsView from "../marketRequests/MarketRequestsView";
+import ManageUsers from "../manageUsers/ManageUsers";
 
 interface ContentRendererProps {
   tab: string;
-  setTab: (tab: string) => void; // Pour changer d'onglet manuellement
+  setTab: (tab: string) => void;
   role: UserRole;
   color: string;
   userData: UserData;
-  selectedContact?: any; // Le contact sélectionné via l'AddressBook
-  setSelectedContact: (contact: any) => void; // Pour définir le contact avant redirection
+  selectedContact?: any;
+  setSelectedContact: (contact: any) => void;
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = ({
@@ -25,53 +28,96 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({
   selectedContact,
   setSelectedContact,
 }) => {
-  const [activeTab, setActiveTab] = useState<string>('messenger');
+  const isAdmin = role === 'admin';
 
-  // Fonction utilitaire pour rediriger vers un message spécifique
-  const handleInitiateContact = (contact: any) => {
-    setSelectedContact(contact);
+  // --- GESTIONNAIRE DE CONTACT (Centralisé pour Market/AddressBook) ---
+  const handleInitiateContact = (contact: any, messageContext?: string) => {
+    setSelectedContact({
+      ...contact,
+      initialMessage: messageContext,
+    });
     setTab("messages");
   };
 
-  switch (tab) {
-    case "profile":
-      return (
-        <ProfileView 
-          // Permet au profil de rediriger vers le service client par défaut
-        />
-      );
+  // --- MOTEUR DE RENDU DES ONGLETS ---
+  // On a supprimé toute la logique de polling axios ici
+  const renderMainContent = () => {
+    switch (tab) {
+      case "profile":
+        return <ProfileView />;
 
-    case "inventory":
-      return <InventoryView />;
+      case "inventory":
+        return (
+          <div className="d-flex flex-column h-100">
+            {isAdmin && (
+              <div className="bg-dark text-white px-4 py-2 small fw-bold text-uppercase tracking-wider">
+                Mode Administration : Vue de tous les lots
+              </div>
+            )}
+            <InventoryView />
+          </div>
+        );
 
-    case "market":
-      return <Market role={role} />;
+      case "market":
+        return <Market role={role} onContactSelect={handleInitiateContact} />;
 
-    case "addressBook":
-      // On passe la fonction de redirection à l'AddressBook
-      return <AddressBook onContactSelect={handleInitiateContact} />;
-      
-    case "orders":
-      return (
-        <div className="p-6">
-          <h2 className="text-xl font-bold" style={{ color }}>Commandes</h2>
-          <p className="text-muted-foreground mt-2">Historique et suivi de vos transactions.</p>
-        </div>
-      );
+      case "addressBook":
+        return <AddressBook onContactSelect={handleInitiateContact} />;
 
-    case "messages":
-      return <MessengerPage 
-            selectedContact={selectedContact} 
-            setTab={setActiveTab} 
+      case "publishOffer":
+        return <PublishBuyRequest />;
+
+      case "marketRequests":
+        return (
+          <div className="d-flex flex-column h-100">
+            {isAdmin && (
+              <div className="bg-dark text-white px-4 py-2 small fw-bold text-uppercase tracking-wider">
+                Mode Administration : Vue de tous les appels d'offres
+              </div>
+            )}
+            <MarketRequestsView onContactSelect={handleInitiateContact} />
+          </div>
+        );
+
+      case "manageUsers":
+        return <ManageUsers />;
+
+      case "messages":
+        return (
+          <MessengerPage
+            selectedContact={selectedContact}
+            setSelectedContact={setSelectedContact}
+            setTab={setTab}
           />
+        );
 
-    default:
-      return (
-        <div className="flex items-center justify-center h-full text-muted">
-          Sélectionnez une option dans le menu latéral.
-        </div>
-      );
-  }
+      case "orders":
+      case "sales":
+        return (
+          <div className="container-fluid py-4">
+            <h2 className="h4 fw-bold" style={{ color }}>
+              {tab === "sales" ? "Ventes" : "Commandes"}
+            </h2>
+            <p className="text-muted">
+              Historique et suivi de vos transactions.
+            </p>
+          </div>
+        );
+
+      default:
+        return (
+          <div className="d-flex align-items-center justify-content-center h-100 text-muted">
+            <p>Sélectionnez une option dans le menu latéral.</p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="w-100 h-100">
+      {renderMainContent()}
+    </div>
+  );
 };
 
 export default ContentRenderer;

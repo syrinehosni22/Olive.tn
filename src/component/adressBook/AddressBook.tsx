@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 
 interface Provider {
-  _id: string; // ou id selon votre backend
+  id: string; // Identifiant unique (mappé depuis _id si nécessaire)
   firstName: string;
   name: string;
   companyName: string;
@@ -23,14 +23,21 @@ export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => 
   const [loading, setLoading] = useState(true);
   const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
 
-  // 1. Fetch des données depuis le backend
+  // --- 1. CHARGEMENT DES DONNÉES DEPUIS LE BACKEND ---
   useEffect(() => {
     const fetchProviders = async () => {
       try {
         setLoading(true);
-        // On récupère uniquement les utilisateurs ayant le rôle 'prestataire'
+        // Appel à votre API Express
         const response = await axios.get("http://localhost:5000/api/user/providers");
-        setProviders(response.data);
+        
+        // Formatage pour garantir l'utilisation de 'id' au lieu de '_id'
+        const formattedData = response.data.map((p: any) => ({
+          ...p,
+          id: p.id || p._id 
+        }));
+        
+        setProviders(formattedData);
       } catch (err) {
         console.error("Erreur lors de la récupération des prestataires:", err);
       } finally {
@@ -40,7 +47,7 @@ export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => 
     fetchProviders();
   }, []);
 
-  // 2. Organisation des données par catégories (serviceType)
+  // --- 2. ORGANISATION PAR CATÉGORIES (serviceType) ---
   const categorizedProviders = useMemo(() => {
     return providers.reduce((acc: { [key: string]: Provider[] }, provider) => {
       const category = provider.serviceType || "Autres Services";
@@ -50,11 +57,12 @@ export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => 
     }, {});
   }, [providers]);
 
-  // 3. Gestion du prestataire sélectionné (Vue Détail)
+  // --- 3. GESTION DU PRÉSTATAIRE SÉLECTIONNÉ (DÉTAIL) ---
   const selectedProvider = useMemo(() => {
-    return providers.find(p => p._id === selectedProviderId) || null;
+    return providers.find(p => p.id === selectedProviderId) || null;
   }, [selectedProviderId, providers]);
 
+  // --- DESIGN SYSTEM (STRICTEMENT IDENTIQUE) ---
   const styles = {
     headerTitle: { fontFamily: 'serif', fontSize: '2.5rem', fontWeight: '300' as const, color: '#000' },
     subTitle: { fontFamily: 'serif', fontSize: '1.1rem', marginBottom: '1.5rem', marginTop: '2.5rem', color: '#000', borderBottom: '1px solid #000', paddingBottom: '8px', textTransform: 'uppercase' as const, letterSpacing: '1px' },
@@ -62,53 +70,68 @@ export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => 
     card: { border: '1px solid #f2f2f2', borderRadius: '0', padding: '1.5rem', marginBottom: '1rem', backgroundColor: '#fff', cursor: 'pointer', transition: '0.3s' },
     buttonPrimary: { border: 'none', backgroundColor: '#000', color: '#fff', fontSize: '0.65rem', textTransform: 'uppercase' as const, letterSpacing: '1.5px', fontWeight: '600', padding: '15px 40px', cursor: 'pointer', borderRadius: '0' },
     buttonLink: { background: 'none', border: 'none', color: '#999', fontSize: '0.65rem', textTransform: 'uppercase' as const, letterSpacing: '1.5px', fontWeight: '600', cursor: 'pointer', padding: '0', textDecoration: 'none' },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' },
+    description: { fontSize: '0.9rem', lineHeight: '1.8', color: '#444', fontStyle: 'italic' as const, marginBottom: '30px' }
   };
 
-  if (loading) return <div className="container py-5 text-center">Chargement de l'annuaire...</div>;
+  if (loading) return <div className="container py-5 text-center">Chargement de l'annuaire certifié...</div>;
 
-  // --- VUE DÉTAILLÉE ---
+  // --- VUE DÉTAILLÉE (FICHE PRESTATAIRE) ---
   if (selectedProvider) {
     return (
       <section className="container py-5" style={{ maxWidth: '1100px' }}>
         <header className="d-flex justify-content-between align-items-end mb-5 border-bottom pb-3">
           <div>
-            <span style={styles.label}>Prestataire / {selectedProvider.serviceType}</span>
+            <span style={styles.label}>Expertise Oléicole / {(selectedProvider.serviceType || "Service").replace(/_/g, ' ')}</span>
             <h1 style={styles.headerTitle}>{selectedProvider.companyName || `${selectedProvider.firstName} ${selectedProvider.name}`}</h1>
           </div>
-          <button onClick={() => setSelectedProviderId(null)} style={styles.buttonLink}>← Retour</button>
+          <button onClick={() => setSelectedProviderId(null)} style={styles.buttonLink} className="pb-2 hover:text-dark">
+            ← Retour
+          </button>
         </header>
 
         <div className="fade-in pb-5">
-          <div style={{ border: '1px solid #f2f2f2', padding: '2rem' }}>
-            <h2 style={styles.subTitle}>Informations Professionnelles</h2>
-            <div style={styles.grid}>
+          <h2 style={styles.subTitle}>Profil du prestataire</h2>
+          <div style={{ border: '1px solid #f2f2f2', padding: '2rem', backgroundColor: '#fff' }}>
+            <p style={styles.description}>
+              {/* Note: Si vous ajoutez un champ description plus tard, il s'affichera ici */}
+              "Prestataire certifié disponible sur la plateforme Olive Tn pour accompagner votre développement oléicole."
+            </p>
+
+            <div style={{ ...styles.grid, borderTop: '1px solid #f2f2f2', borderBottom: '1px solid #f2f2f2', padding: '25px 0', margin: '25px 0' }}>
               <div>
-                <span style={styles.label}>Contact</span>
-                <p>{selectedProvider.firstName} {selectedProvider.name}</p>
-              </div>
-              <div>
-                <span style={styles.label}>Email Pro</span>
-                <p>{selectedProvider.proEmail || selectedProvider.email}</p>
+                <span style={styles.label}>Contact Direct</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{selectedProvider.firstName} {selectedProvider.name}</span>
               </div>
               <div>
                 <span style={styles.label}>Localisation</span>
-                <p>{selectedProvider.region || "Non spécifiée"}</p>
+                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{selectedProvider.region || "Toute la Tunisie"}</span>
+              </div>
+              <div>
+                <span style={styles.label}>Email Professionnel</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{selectedProvider.proEmail || selectedProvider.email}</span>
               </div>
               {selectedProvider.website && (
                 <div>
                   <span style={styles.label}>Site Web</span>
-                  <p><a href={selectedProvider.website} target="_blank" rel="noreferrer" style={{color: '#000'}}>{selectedProvider.website}</a></p>
+                  <a href={selectedProvider.website} target="_blank" rel="noreferrer" style={{ fontSize: '0.9rem', fontWeight: '500', color: '#000' }}>Visiter le site</a>
                 </div>
               )}
             </div>
-            
-            <div className="mt-5 pt-4 border-top">
+
+            <div className="d-flex justify-content-between align-items-center mt-4">
+              <div style={{ maxWidth: '500px' }}>
+                <span style={styles.label}>Mise en relation</span>
+                <p style={{ fontSize: '0.7rem', color: '#999', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  En cliquant, une demande de contact sera initiée avec cet expert.
+                </p>
+              </div>
+              
               <button 
-                style={styles.buttonPrimary}
                 onClick={() => onContactSelect && onContactSelect(selectedProvider)}
+                style={styles.buttonPrimary}
               >
-                Contacter l'expert
+                Envoyer un message
               </button>
             </div>
           </div>
@@ -117,7 +140,7 @@ export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => 
     );
   }
 
-  // --- VUE LISTE ---
+  // --- VUE LISTE (ANNUAIRE COMPLET) ---
   return (
     <section className="container py-5" style={{ maxWidth: '1100px' }}>
       <header className="d-flex justify-content-between align-items-end mb-5 border-bottom pb-3">
@@ -126,6 +149,9 @@ export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => 
           <h1 style={styles.headerTitle}>Annuaire des Experts</h1>
         </div>
         <div style={{ textAlign: 'right' }}>
+          <p style={{ ...styles.label, color: '#999', margin: 0 }}>
+            Sélection certifiée des prestataires
+          </p>
           <span style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
             {Object.keys(categorizedProviders).length} Domaines d'expertise
           </span>
@@ -136,20 +162,21 @@ export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => 
         {Object.entries(categorizedProviders).map(([categoryName, providersList]) => (
           <div key={categoryName} className="mb-5">
             <h3 style={styles.subTitle}>{categoryName.replace(/_/g, ' ')}</h3>
+            
             <div style={styles.grid}>
               {providersList.map((p) => (
                 <div 
-                  key={p._id} 
+                  key={p.id} 
                   style={styles.card} 
-                  className="provider-card-hover"
-                  onClick={() => setSelectedProviderId(p._id)}
+                  className="provider-card-hover shadow-sm-hover"
+                  onClick={() => setSelectedProviderId(p.id)}
                 >
                   <span style={styles.label}>{p.region || 'National'}</span>
-                  <h4 style={{ fontSize: '1.1rem', margin: '10px 0', fontWeight: '500' }}>
+                  <h4 style={{ fontSize: '1.1rem', margin: '10px 0', fontWeight: '500', minHeight: '2.4em' }}>
                     {p.companyName || `${p.firstName} ${p.name}`}
                   </h4>
-                  <p style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0' }}>
-                    Expert en {categoryName.replace(/_/g, ' ')}
+                  <p style={{ fontSize: '0.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0' }}>
+                    Voir la fiche expert →
                   </p>
                 </div>
               ))}
@@ -159,11 +186,12 @@ export const AddressBook: React.FC<AddressBookProps> = ({ onContactSelect }) => 
       </div>
 
       <footer className="mt-5 pt-5 border-top text-center">
-        <p style={{ ...styles.label, color: '#ccc', letterSpacing: '4px' }}>
+        <p style={{ ...styles.label, color: '#ccc', letterSpacing: '4px', marginTop: '40px' }}>
           Zynex Solution — Olive Tn Excellence
         </p>
       </footer>
     </section>
   );
 };
+
 export default AddressBook;

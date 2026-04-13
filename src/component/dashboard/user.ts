@@ -1,5 +1,5 @@
 // types/user.ts
-export type UserRole = 'vendeur' | 'acheteur' | 'prestataire';
+export type UserRole = "vendeur" | "acheteur" | "prestataire" | "admin";
 
 export interface RoleConfig {
   label: string;

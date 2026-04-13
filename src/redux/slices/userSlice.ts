@@ -4,7 +4,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface UserState {
   id:string,
   userInfo: any | null; // This will hold your Mongoose object
-  role: "vendeur" | "acheteur" | "prestataire" | null;
+  role: "vendeur" | "acheteur" | "prestataire" | "admin" | null;
   planId: string;
   isAuthenticated: boolean;
   loading: boolean;
