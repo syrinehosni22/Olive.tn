@@ -1,46 +1,75 @@
 import React from "react";
 import { 
   ArrowLeft, Droplet, Package, Beaker, MessageSquare, 
-  ShieldCheck, Microscope, Thermometer, Truck, FileText, Globe 
+  ShieldCheck, Microscope, Thermometer, Truck, FileText, Globe, 
+  Search, ClipboardCheck, Award, AlertTriangle, ShieldAlert,
+  Zap, Info, ExternalLink, CheckCircle2, FlaskConical, Layout
 } from "lucide-react";
 import DivAnimateYAxis from "../utils/DivAnimateYAxis";
-import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config/api";
+// Importer l'URL de base (à adapter selon votre chemin)
 
 interface LotDetailViewProps {
   lot: any;
   onBack: () => void;
-  // Ajout de la prop onContactSelect pour suivre la logique AddressBook
   onContactSelect?: (contact: any, messageContext?: string) => void;
 }
 
 const LotDetailView: React.FC<LotDetailViewProps> = ({ lot, onBack, onContactSelect }) => {
-  const navigate = useNavigate();
+  
+  /**
+   * Helper pour formater l'URL du fichier
+   * Gère les formats Base64 existants et les chemins relatifs venant du serveur
+   */
+  const formatFileUrl = (path: string) => {
+    if (!path) return null;
+    // Si c'est déjà un Base64 ou une URL complète, on le garde
+    if (path.startsWith("data:") || path.startsWith("http")) return path;
+    // Sinon, on ajoute l'URL de base du backend
+    return `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
 
-  // --- LOGIQUE DE SÉLECTION DU CONTACT (Même que AddressBook) ---
+  const openFile = (fileUrl: string) => {
+    if (!fileUrl) return;
+    const fullUrl = formatFileUrl(fileUrl);
+    if (fullUrl) window.open(fullUrl, "_blank");
+  };
+
   const handleNegotiate = () => {
     const contactPayload = {
       id: lot.sellerId,
-      // On simule une structure Provider/User pour la messagerie
       firstName: "Vendeur", 
       name: `Lot #${lot.traceability?.lotNumber}`,
       companyName: lot.sellerName || "Producteur Olive Tn",
       email: lot.sellerEmail,
     };
-
     const messageContext = `Bonjour, je souhaite négocier le lot ${lot.traceability?.lotNumber} (${lot.physicoChimique?.variety}). Quantité : ${lot.logistique?.totalQuantity}L au prix de ${lot.logistique?.price}€/L.`;
-
-    if (onContactSelect) {
-      // Si on utilise une fonction de callback (logique interne au Dashboard)
-      onContactSelect(contactPayload, messageContext);
-    }
+    if (onContactSelect) onContactSelect(contactPayload, messageContext);
   };
 
   const DetailItem = ({ icon: Icon, label, value, color = "text-muted" }: any) => (
-    <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
-      <span className={`${color} d-flex align-items-center gap-2 small fw-bold text-uppercase`} style={{ letterSpacing: '0.5px' }}>
-        <Icon size={16} /> {label}
+    <div className="d-flex justify-content-between align-items-center p-3 border-bottom border-light">
+      <span className={`${color} d-flex align-items-center gap-2 small fw-bold text-uppercase`} style={{ letterSpacing: '0.5px', fontSize: '0.6rem' }}>
+        <Icon size={12} /> {label}
       </span>
-      <span className="fw-bold">{value || "N/A"}</span>
+      <span className="fw-bold text-end" style={{ fontSize: '0.85rem' }}>{value || "—"}</span>
+    </div>
+  );
+
+  const DocumentBadge = ({ label, fileUrl, icon: Icon = FileText }: { label: string, fileUrl?: string, icon?: any }) => (
+    <div 
+      onClick={() => fileUrl && openFile(fileUrl)}
+      className={`d-flex align-items-center justify-content-between p-3 mb-2 border ${fileUrl ? 'border-dark cursor-pointer' : 'border-light opacity-50'}`}
+      style={{ cursor: fileUrl ? 'pointer' : 'default', transition: '0.2s', backgroundColor: fileUrl ? '#fff' : '#fafafa' }}
+    >
+      <div className="d-flex align-items-center gap-3">
+        <Icon size={18} className={fileUrl ? 'text-dark' : 'text-muted'} />
+        <div>
+          <p className="mb-0 fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '0.5px' }}>{label.toUpperCase()}</p>
+          <p className="mb-0 text-muted" style={{ fontSize: '0.55rem' }}>{fileUrl ? 'Cliquer pour consulter' : 'Non fourni'}</p>
+        </div>
+      </div>
+      {fileUrl && <ExternalLink size={12} className="text-muted" />}
     </div>
   );
 
@@ -54,106 +83,188 @@ const LotDetailView: React.FC<LotDetailViewProps> = ({ lot, onBack, onContactSel
         <ArrowLeft size={18} /> RETOUR AU MARCHÉ
       </button>
 
-      <div className="row g-4">
-        {/* COLONNE GAUCHE : VISUEL & PRIX */}
+      <div className="row g-5">
         <div className="col-lg-4">
           <DivAnimateYAxis className="sticky-top" style={{ top: "20px" }}>
-            <div className="card border-0 shadow-sm overflow-hidden mb-4" style={{ borderRadius: '0' }}>
-              {lot.image ? (
-                <img src={lot.image} alt="Produit" className="img-fluid" />
-              ) : (
-                <div className="bg-light d-flex align-items-center justify-content-center" style={{ height: "300px" }}>
-                  <Droplet size={80} className="text-success opacity-25" />
+            <div className="card border-0 shadow-sm overflow-hidden mb-4 rounded-0">
+              <div className="bg-light d-flex align-items-center justify-content-center border-bottom" style={{ height: "300px", position: 'relative' }}>
+                 {lot.status === "Validé" && (
+                   <div className="position-absolute top-0 end-0 m-3 badge bg-success rounded-0 d-flex align-items-center gap-2 py-2 px-3">
+                     <CheckCircle2 size={14}/> LOT CERTIFIÉ
+                   </div>
+                 )}
+                 <Droplet size={100} className="text-success opacity-25" />
+              </div>
+              
+              <div className="p-4 bg-white">
+                <div className="mb-4">
+                  <span className="badge bg-dark rounded-0 mb-2" style={{ fontSize: '0.6rem' }}>{lot.physicoChimique?.classification || 'HUILE D\'OLIVE'}</span>
+                  <h5 className="fw-bold mb-1" style={{ fontFamily: 'serif', fontSize: '2.2rem' }}>{lot.physicoChimique?.variety}</h5>
+                  <p className="text-muted small">Lot n° {lot.traceability?.lotNumber} • {lot.traceability?.campagneOleicole}</p>
                 </div>
-              )}
-              <div className="p-4 bg-white border-top border-5 border-dark">
-                <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#999', fontWeight: '600' }}>Expertise Tunisienne</span>
-                <h5 className="fw-bold mb-1" style={{ fontFamily: 'serif', fontSize: '1.5rem' }}>{lot.physicoChimique?.variety}</h5>
-                <p className="text-muted small mb-3">Référence Lot : {lot.traceability?.lotNumber}</p>
-                
-                <div className="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
-                  <span className="text-muted small fw-bold">PRIX UNITAIRE</span>
-                  <span className="fs-3 fw-bold text-dark">{lot.logistique?.price} €<small className="fs-6 text-muted">/L</small></span>
+
+                <div className="p-3 bg-light mb-4">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span className="text-muted small fw-bold">PRIX INDICATIF</span>
+                    <span className="fs-2 fw-bold text-dark">{lot.logistique?.price} €<small className="fs-6 text-muted">/L</small></span>
+                  </div>
+                  <p className="text-muted mb-0" style={{ fontSize: '0.6rem' }}>Volume : <strong>{lot.logistique?.totalQuantity} L</strong> • Incoterm : <strong>{lot.logistique?.incoterm}</strong></p>
                 </div>
 
                 <button 
                   onClick={handleNegotiate}
-                  className="btn btn-dark w-100 mt-4 py-3 d-flex align-items-center justify-content-center gap-2 rounded-0 shadow-sm"
-                  style={{ fontSize: '0.7rem', letterSpacing: '1.5px', fontWeight: 'bold' }}
+                  className="btn btn-dark w-100 py-3 d-flex align-items-center justify-content-center gap-2 rounded-0 mb-4 shadow-sm"
+                  style={{ fontSize: '0.75rem', letterSpacing: '1.5px', fontWeight: 'bold' }}
                 >
-                  <MessageSquare size={18} /> NÉGOCIER AVEC LE VENDEUR
+                  <MessageSquare size={18} /> CONTACTER L'EXPORTATEUR
                 </button>
-                <p className="text-center text-muted mt-3" style={{ fontSize: '0.6rem', textTransform: 'uppercase' }}>
-                  Ouverture d'une ligne directe certifiée
-                </p>
               </div>
             </div>
           </DivAnimateYAxis>
         </div>
 
-        {/* COLONNE DROITE : CAHIER DES CHARGES TECHNIQUE */}
         <div className="col-lg-8">
           <DivAnimateYAxis>
-            <h1 className="mb-4" style={{ fontFamily: 'serif', fontWeight: '300' }}>Spécifications du Lot</h1>
-            
+            <h1 className="mb-5" style={{ fontFamily: 'serif', fontWeight: '300', fontSize: '2.5rem' }}>Dossier Technique du Lot</h1>
+
             {/* 1. TRAÇABILITÉ */}
             <section className="mb-5">
-              <h5 className="pb-2 mb-3 fw-bold d-flex align-items-center gap-2 border-bottom" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
-                <Globe size={18} className="text-dark" /> 1. TRAÇABILITÉ & EXTRACTION
-              </h5>
-              <div className="card border-0 shadow-sm rounded-0">
-                <DetailItem icon={Truck} label="Campagne" value={lot.traceability?.campagneOleicole} />
-                <DetailItem icon={Thermometer} label="Méthode d'Extraction" value={lot.traceability?.methodeExtraction} />
-                <DetailItem icon={Droplet} label="Type d'Irrigation" value={lot.traceability?.typeIrrigation} />
-                <DetailItem icon={Package} label="Mode de Stockage" value={lot.traceability?.stockage?.[0]} />
-                <DetailItem icon={ShieldCheck} label="Stabilité Rancimat" value={lot.traceability?.stabiliteRancimat} />
-              </div>
-            </section>
-
-            {/* 2. ANALYSE PHYSICO-CHIMIQUE */}
-            <section className="mb-5">
-              <h5 className="pb-2 mb-3 fw-bold d-flex align-items-center gap-2 border-bottom" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
-                <Beaker size={18} className="text-dark" /> 2. ANALYSES PHYSICO-CHIMIQUES
-              </h5>
-              <div className="card border-0 shadow-sm rounded-0">
-                <DetailItem icon={ShieldCheck} label="Classification" value={lot.physicoChimique?.classification} color="text-dark" />
-                <DetailItem icon={Microscope} label="Acidité Libre" value={`${lot.physicoChimique?.aciditeLibre}%`} />
-                <DetailItem icon={Microscope} label="Indice Peroxyde" value={lot.physicoChimique?.indicePeroxyde} />
-                <div className="p-3 bg-light-subtle small text-muted border-top border-light">
-                  <strong>Spectrophotométrie UV :</strong> K232: {lot.physicoChimique?.absorbanceUV?.k232} | K270: {lot.physicoChimique?.absorbanceUV?.k270}
+              <h5 className="section-title"><Globe size={18} /> 1. TRAÇABILITÉ & PROPRIÉTÉS</h5>
+              <div className="card rounded-0 border-0 shadow-sm">
+                <div className="row g-0">
+                  <div className="col-md-6 border-end">
+                    <DetailItem icon={Truck} label="Campagne Oléicole" value={lot.traceability?.campagneOleicole} />
+                    <DetailItem icon={ClipboardCheck} label="Type de Récolte" value={lot.traceability?.typeRecolte} />
+                    <DetailItem icon={Thermometer} label="Méthode d'Extraction" value={lot.traceability?.methodeExtraction} />
+                    <DetailItem icon={FlaskConical} label="Stabilité Rancimat" value={lot.traceability?.stabiliteRancimat} />
+                  </div>
+                  <div className="col-md-6">
+                    <DetailItem icon={Droplet} label="Irrigation" value={lot.traceability?.typeIrrigation} />
+                    <DetailItem icon={Package} label="Filtration" value={lot.traceability?.filtration} />
+                    <DetailItem icon={Search} label="Conservation" value={lot.traceability?.dureeConservation} />
+                    <DetailItem icon={ShieldCheck} label="Stockage" value={lot.traceability?.stockage?.recipients} />
+                  </div>
+                </div>
+                <div className="p-2 border-top">
+                  <DocumentBadge label="Bulletin de Traçabilité" fileUrl={lot.traceability?.fileUrlTraceabilite} icon={FileText} />
                 </div>
               </div>
             </section>
 
-            {/* 3. PURETÉ */}
+            {/* 2. ANALYSES PHYSICO-CHIMIQUES */}
             <section className="mb-5">
-              <h5 className="pb-2 mb-3 fw-bold d-flex align-items-center gap-2 border-bottom" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
-                <ShieldCheck size={18} className="text-dark" /> 3. PURETÉ & ANTI-FRAUDE
-              </h5>
-              <div className="card border-0 shadow-sm rounded-0">
-                <DetailItem icon={FileText} label="Alkyl Esters" value={lot.purete?.alkylEsters} />
-                <DetailItem icon={FileText} label="Cires (Waxes)" value={lot.purete?.ciresWaxes} />
-                <DetailItem icon={FileText} label="Erythrodiol + Uvaol" value={lot.purete?.erythrodiolUvaol} />
-                <DetailItem icon={FileText} label="Acide Oléique" value={`${lot.purete?.acideOleique}%`} />
+              <h5 className="section-title"><Beaker size={18} /> 2. ANALYSES PHYSICO-CHIMIQUES (COI)</h5>
+              <div className="card rounded-0 border-0 shadow-sm">
+                <div className="row g-0">
+                  <div className="col-md-6 border-end">
+                    <DetailItem icon={Microscope} label="Acidité Libre" value={lot.physicoChimique?.aciditeLibre ? `${lot.physicoChimique.aciditeLibre}%` : null} />
+                    <DetailItem icon={ShieldAlert} label="Indice de Peroxyde" value={lot.physicoChimique?.indicePeroxyde} />
+                    <DetailItem icon={Search} label="Humidité" value={lot.physicoChimique?.humiditeMatieresVolatiles ? `${lot.physicoChimique.humiditeMatieresVolatiles}%` : null} />
+                  </div>
+                  <div className="col-md-6">
+                    <DetailItem icon={Zap} label="K232" value={lot.physicoChimique?.absorbanceUV?.k232} />
+                    <DetailItem icon={Zap} label="K270" value={lot.physicoChimique?.absorbanceUV?.k270} />
+                    <DetailItem icon={Zap} label="Delta K" value={lot.physicoChimique?.absorbanceUV?.deltaK} />
+                  </div>
+                </div>
+                <div className="p-2 border-top">
+                  <DocumentBadge label="Bulletin Physico-Chimique" fileUrl={lot.physicoChimique?.fileUrlAnalyse} icon={FlaskConical} />
+                </div>
               </div>
             </section>
 
-            {/* 4. LOGISTIQUE */}
+            {/* 3. ORGANOLEPTIQUE */}
             <section className="mb-5">
-              <h5 className="pb-2 mb-3 fw-bold d-flex align-items-center gap-2 border-bottom" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
-                <Package size={18} className="text-dark" /> 4. LOGISTIQUE & VOLUME
-              </h5>
-              <div className="card border-0 shadow-sm rounded-0">
-                <DetailItem icon={Package} label="Disponibilité" value={`${lot.logistique?.totalQuantity} Litres`} />
-                <DetailItem icon={Truck} label="Conditionnement" value={lot.logistique?.packagingType} />
+              <h5 className="section-title"><Award size={18} /> 3. ANALYSE ORGANOLEPTIQUE</h5>
+              <div className="card rounded-0 border-0 shadow-sm">
+                <div className="row g-0">
+                  <div className="col-md-6 border-end">
+                    <DetailItem icon={AlertTriangle} label="Médiane Défauts (Md)" value={lot.organoleptique?.medianeDefauts} />
+                    <DetailItem icon={Droplet} label="Médiane Fruité (Mf)" value={lot.organoleptique?.medianeFruite} />
+                  </div>
+                  <div className="col-md-6 p-3">
+                    <p className="small fw-bold text-muted text-uppercase mb-2" style={{ fontSize: '0.55rem' }}>Attributs Positifs</p>
+                    <div className="d-flex gap-1 flex-wrap">
+                      {lot.organoleptique?.attributsPositifs?.map((a: string, i: number) => (
+                        <span key={i} className="badge bg-light text-dark border rounded-0" style={{ fontSize: '0.6rem' }}>{a}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-2 border-top">
+                  <DocumentBadge label="Rapport de Panel Test" fileUrl={lot.organoleptique?.fileUrlPanelTest} icon={Award} />
+                </div>
               </div>
             </section>
 
-            {/* FOOTER ZYNEX */}
-            <footer className="mt-5 pt-4 text-center">
-               <p style={{ fontSize: '0.55rem', color: '#ccc', letterSpacing: '3px', textTransform: 'uppercase' }}>
-                 Certifié par Zynex Solution — Olive Tn Platform
-               </p>
+            {/* 4. PURETÉ */}
+            <section className="mb-5">
+              <h5 className="section-title"><ShieldCheck size={18} /> 4. ANALYSES DE PURETÉ</h5>
+              <div className="card rounded-0 border-0 shadow-sm">
+                <div className="row g-0">
+                  <div className="col-md-6 border-end">
+                    <DetailItem icon={FileText} label="Acide Oléique" value={lot.purete?.acidesGras?.oleique ? `${lot.purete.acidesGras.oleique}%` : null} />
+                    <DetailItem icon={Award} label="Stérols Totaux" value={lot.purete?.sterols?.totaux} />
+                    <DetailItem icon={Microscope} label="Alkyl Esters" value={lot.purete?.alkylEsters} />
+                  </div>
+                  <div className="col-md-6">
+                    <DetailItem icon={FlaskConical} label="Éthyl Esters" value={lot.purete?.ethylEstersFAEE} />
+                    <DetailItem icon={Thermometer} label="Point de Fumée" value={lot.purete?.pointFumee} />
+                    <DetailItem icon={Search} label="Beta-sitostérol" value={lot.purete?.sterols?.betaSitosterol ? `${lot.purete.sterols.betaSitosterol}%` : null} />
+                  </div>
+                </div>
+                <div className="p-2 border-top">
+                  <DocumentBadge label="Bulletin de Pureté" fileUrl={lot.purete?.fileUrlPurete} icon={ShieldCheck} />
+                </div>
+              </div>
+            </section>
+
+            {/* 5. LOGISTIQUE */}
+            <section className="mb-5">
+              <h5 className="section-title"><Truck size={18} /> 5. LOGISTIQUE & COMMERCE</h5>
+              <div className="card rounded-0 border-0 shadow-sm">
+                <div className="row g-0">
+                  <div className="col-md-6 border-end">
+                    <DetailItem icon={Package} label="Conditionnement" value={lot.logistique?.packagingType} />
+                    <DetailItem icon={Search} label="Détail Emballage" value={lot.logistique?.packagingDetail} />
+                    <DetailItem icon={Layout} label="Volume Total" value={`${lot.logistique?.totalQuantity} L`} />
+                  </div>
+                  <div className="col-md-6">
+                    <DetailItem icon={Globe} label="Incoterm" value={lot.logistique?.incoterm} />
+                    <DetailItem icon={Truck} label="Port de Départ" value={lot.logistique?.port} />
+                    <DetailItem icon={CheckCircle2} label="MOQ" value={lot.logistique?.minOrderQuantity} />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 6. DOCUMENTS EXPORT */}
+            <section className="mb-5">
+              <h5 className="section-title"><FileText size={18} /> 6. CERTIFICATS EXPORT</h5>
+              <div className="row g-2">
+                <div className="col-md-6"><DocumentBadge label="Origine" fileUrl={lot.documentsExport?.certificatOrigine} /></div>
+                <div className="col-md-6"><DocumentBadge label="Sanitaire" fileUrl={lot.documentsExport?.certificatSanitaire} /></div>
+                <div className="col-md-6"><DocumentBadge label="BIO" fileUrl={lot.documentsExport?.certificatBio} /></div>
+                <div className="col-md-6"><DocumentBadge label="COA" fileUrl={lot.documentsExport?.coa} /></div>
+                <div className="col-md-6"><DocumentBadge label="Analyse Emballage" fileUrl={lot.documentsExport?.analyseEmballage} /></div>
+                <div className="col-md-6"><DocumentBadge label="Phytosanitaire" fileUrl={lot.documentsExport?.certificatPhytosanitaire} /></div>
+              </div>
+            </section>
+
+            <style>{`
+              .section-title {
+                font-size: 0.75rem; letter-spacing: 1.5px; font-weight: 800;
+                display: flex; align-items: center; gap: 12px;
+                border-bottom: 2px solid #000; padding-bottom: 12px;
+                margin-bottom: 20px; text-transform: uppercase;
+              }
+              .cursor-pointer:hover { background-color: #f8f9fa !important; border-color: #000 !important; }
+            `}</style>
+
+            <footer className="mt-5 pt-5 text-center border-top">
+              <p style={{ fontSize: '0.5rem', color: '#bbb', letterSpacing: '4px', textTransform: 'uppercase' }}>
+                Olive Tn — Zynex Solution — Dossier Export Certifié
+              </p>
             </footer>
           </DivAnimateYAxis>
         </div>

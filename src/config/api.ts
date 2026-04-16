@@ -1,8 +1,1 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Your backend URL
-  withCredentials: true, // REQUIRED for HTTP-only cookies
-});
-
-export default api;
+export const API_BASE_URL = "http://localhost:5000";
