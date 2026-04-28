@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../config/api";
 
 interface Props {
   role: string;
@@ -8,8 +9,10 @@ interface Props {
 }
 
 const SubscriptionForm: React.FC<Props> = ({ role, plan, onBack }) => {
-  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [rneBase64, setRneBase64] = useState<string | null>(null); // Pour le binaire du fichier
+  const [fileName, setFileName] = useState<string>("");
+
   const [formData, setFormData] = useState<any>({
     // Auth & Common
     firstName: "",
@@ -48,24 +51,38 @@ const SubscriptionForm: React.FC<Props> = ({ role, plan, onBack }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // --- CONVERSION DU FICHIER EN BASE64 ---
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileName(file.name);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        setRneBase64(reader.result as string); // Stockage de la chaîne binaire
+      };
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const data = new FormData();
 
-    Object.keys(formData).forEach((key) => {
-      if (formData[key]) data.append(key, formData[key]);
-    });
-
-    data.append("role", role);
-    data.append("planId", plan.id);
-    if (file) data.append("rneFile", file);
+    // --- CONSTRUCTION DU PAYLOAD JSON SIMPLE ---
+    const payload = {
+      ...formData,
+      role: role,
+      planId: plan.id,
+      rneFile: rneBase64, // On passe la chaîne Base64 directement ici
+    };
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register-with-payment",
-        data,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        `${API_BASE_URL}/api/auth/register-with-payment`,
+        payload, // Envoi en tant qu'objet JSON
+        { 
+          headers: { "Content-Type": "application/json" } 
+        }
       );
 
       if (res.data.paymentUrl) {
@@ -91,10 +108,10 @@ const SubscriptionForm: React.FC<Props> = ({ role, plan, onBack }) => {
           type="file" 
           accept=".pdf,.png,.jpg" 
           required={isRequired} 
-          onChange={(e) => setFile(e.target.files?.[0] || null)} 
+          onChange={handleFileChange} 
           className="form-control-file w-100" 
         />
-        {file && <small className="text-success mt-1 d-block fw-bold">✓ {file.name}</small>}
+        {fileName && <small className="text-success mt-1 d-block fw-bold">✓ {fileName}</small>}
       </div>
     </div>
   );

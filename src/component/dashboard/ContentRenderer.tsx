@@ -30,7 +30,7 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({
 }) => {
   const isAdmin = role === 'admin';
 
-  // --- GESTIONNAIRE DE CONTACT (Centralisé pour Market/AddressBook) ---
+  // --- GESTIONNAIRE DE CONTACT (Centralisé) ---
   const handleInitiateContact = (contact: any, messageContext?: string) => {
     setSelectedContact({
       ...contact,
@@ -39,8 +39,13 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({
     setTab("messages");
   };
 
+  // --- GESTIONNAIRE DE RETOUR À LA LISTE (Après publication/édition) ---
+  const handleRequestSuccess = () => {
+    // Redirige vers l'onglet des demandes après une action réussie
+    setTab("marketRequests");
+  };
+
   // --- MOTEUR DE RENDU DES ONGLETS ---
-  // On a supprimé toute la logique de polling axios ici
   const renderMainContent = () => {
     switch (tab) {
       case "profile":
@@ -65,14 +70,18 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({
         return <AddressBook onContactSelect={handleInitiateContact} />;
 
       case "publishOffer":
-        return <PublishBuyRequest />;
+        return (
+          <div className="fade-in h-100 overflow-auto">
+            <PublishBuyRequest onSuccess={handleRequestSuccess} />
+          </div>
+        );
 
       case "marketRequests":
         return (
           <div className="d-flex flex-column h-100">
             {isAdmin && (
               <div className="bg-dark text-white px-4 py-2 small fw-bold text-uppercase tracking-wider">
-                Mode Administration : Vue de tous les appels d'offres
+                Mode Administration : Modération des appels d'offres
               </div>
             )}
             <MarketRequestsView onContactSelect={handleInitiateContact} />
@@ -99,7 +108,7 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({
               {tab === "sales" ? "Ventes" : "Commandes"}
             </h2>
             <p className="text-muted">
-              Historique et suivi de vos transactions.
+              Historique et suivi de vos transactions export.
             </p>
           </div>
         );
@@ -107,14 +116,16 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({
       default:
         return (
           <div className="d-flex align-items-center justify-content-center h-100 text-muted">
-            <p>Sélectionnez une option dans le menu latéral.</p>
+            <div className="text-center">
+              <p>Sélectionnez une option dans le menu latéral.</p>
+            </div>
           </div>
         );
     }
   };
 
   return (
-    <div className="w-100 h-100">
+    <div className="w-100 h-100 overflow-hidden">
       {renderMainContent()}
     </div>
   );

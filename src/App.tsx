@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios"; // Importation d'axios standard
 
 import Layout from "./component/Layout";
 import BlankLayout from "./component/BlankLayout";
@@ -14,26 +15,33 @@ import ErrorPage from "./pages/ErrorPage";
 import About from "./pages/About";
 import Services from "./pages/Services";
 import { ContactPage } from "./pages/ContactPage";
+
+// IMPORTATION DE VOTRE CONFIGURATION (C'est ici que l'erreur se produisait)
+import { API_BASE_URL } from "./config/api"; 
+
 import { setAuthFailed, setCredentials } from "./redux/slices/authSlice";
-import api from "./config/api";
 import { loginSuccess } from "./redux/slices/userSlice";
 
 function App() {
   const dispatch = useDispatch();
-  const { isAuthenticated, setIsAuthenticated } = useSelector((state: any) => state.auth);
+  const { isAuthenticated } = useSelector((state: any) => state.auth);
 
   const verifyUserSession = useCallback(async () => {
     try {
-      const response = await api.get("/auth/me");
-      console.log(response.data.user)
+      // Utilisation directe d'axios avec l'URL paramétrée
+      // Ajout de withCredentials pour que les cookies de session soient envoyés au backend
+      const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+        withCredentials: true 
+      });
+
       if (response.data.user) {
         dispatch(setCredentials(response.data.user));
-            dispatch(loginSuccess(response.data.user));
-        
+        dispatch(loginSuccess(response.data.user));
       } else {
         dispatch(setAuthFailed());
       }
     } catch (error) {
+      console.error("Session non valide ou expirée");
       dispatch(setAuthFailed());
     }
   }, [dispatch]);
@@ -41,8 +49,6 @@ function App() {
   useEffect(() => {
     verifyUserSession();
   }, [verifyUserSession]);
-
-  
 
   return (
     <Router>
@@ -54,7 +60,6 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<ContactPage />} />
           
-          {/* Auth Pages: Redirect to dashboard ONLY if they try to access /login while logged in */}
           <Route 
             path="/login" 
             element={!isAuthenticated ? <SignIn /> : <Navigate to="/dashboard" replace />} 

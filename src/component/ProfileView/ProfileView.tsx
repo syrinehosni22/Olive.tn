@@ -1,7 +1,8 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../redux/store";
-import { updateUser } from "../../redux/slices/authSlice";
+import { setCredentials, updateUser } from "../../redux/slices/authSlice";
+import { useDispatch } from 'react-redux'; 
 
 // --- Interfaces Synchronisées ---
 interface User {
@@ -46,6 +47,7 @@ const ProfileView: React.FC<Props> = ({ reduxUser, dispatchUpdateUser }) => {
   const [formData, setFormData] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -70,6 +72,7 @@ const ProfileView: React.FC<Props> = ({ reduxUser, dispatchUpdateUser }) => {
   }, [dispatchUpdateUser, reduxUser?.id, reduxUser?._id]);
 
   useEffect(() => {
+    console.log("user",reduxUser)
     if (reduxUser && !formData) setFormData(reduxUser);
   }, [reduxUser, formData]);
 
@@ -103,8 +106,11 @@ const ProfileView: React.FC<Props> = ({ reduxUser, dispatchUpdateUser }) => {
         body: JSON.stringify({ user: formData }),
       });
       const data = await res.json();
-      if (res.ok && data.user) {
-        dispatchUpdateUser(data.user);
+      console.log(data);
+      if ( data) {
+      dispatch(setCredentials({ 
+        user: data 
+      }));      
         setTimeout(() => alert("Profil mis à jour avec succès !"), 100);
       }
     } catch (err) {

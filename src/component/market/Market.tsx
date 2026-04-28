@@ -121,7 +121,7 @@ const Market: React.FC<MarketProps> = ({ role, onContactSelect }) => {
                 </h5>
                 <DivAnimateYAxis className="row g-4">
                   {bulkProducts.map((item) => (
-                    <div className="col-xl-3 col-lg-4 col-md-6" key={item._id}>
+                    <div className="col-xl-4 col-lg-6 col-md-8" key={item._id}>
                       <BulkLotCard
                         item={item}
                         onClick={() => setSelectedLotId(item._id)}
@@ -140,7 +140,7 @@ const Market: React.FC<MarketProps> = ({ role, onContactSelect }) => {
                 </h5>
                 <DivAnimateYAxis className="row g-3">
                   {packagedProducts.map((item) => (
-                    <div className="col-xl-3 col-lg-4 col-md-6" key={item._id}>
+                    <div className="col-xl-4 col-lg-6 col-md-8" key={item._id}>
                       <PackagedLotCard
                         item={item}
                         onClick={() => setSelectedLotId(item._id)}
